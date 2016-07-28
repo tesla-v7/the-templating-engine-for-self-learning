@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="{{lang}}">
+<head>
+    <meta charset="UTF-8">
+    <title>{{title}}</title>
+</head>
+<body>
+<div class="meenu">
+    <a href="{{createPostLink}}">{{createPostLabel}}</a>
+</div>
+<div class="posts">
+{%for key in posts: %}
+    <div class="not_if">___{{key.autor}}___</div>
+    {% if a4 != key.autor: %}
+        __if___{{key.autor}}___
+        <div if class="post">
+            <div class="text">
+                {{key.post}}
+            </div>
+            <div class="autor">
+                {{key.autor}}
+            </div>
+            <div class="datatime">
+                {{key.datatime}}
+            </div>
+            <!--{% if key.autor != 'not': %}-->
+                <div class="id">
+                    {{key.id}}
+                </div>
+            <!--{% else %}-->
+                <!--<div class="title">-->
+                    <!--&lt;!&ndash;{{key.id}}&ndash;&gt;-->
+                <!--</div>-->
+            <!--{% end %}-->
+
+        <!--</div>-->
+    {% else %}
+            _____ELSE_____
+    {% end %}
+    <div></div>
+{% end %}
+</div>
+{{title}}
+<div></div>
+{{title}}
+<div></div>
+{{title}}
+<div></div>
+<!--{% if title == '':%}-->
+<div>
+    <div>
+        {{title}}
+    </div>
+</div>
+
+<!--{% end %}-->
+{%for key1 in tests: %}
+    <div class="tests">
+        {{key1.id}}
+        <div>
+            {%for key2 in key1.mas: %}
+                <div class="mas">
+                    {{key2.t1}}
+                    {%if key1.id == 2:%}
+                        __IF__
+                    {%else%}
+                        __ELSE__
+                    {%end%}
+                </div>
+            {% end %}
+        </div>
+    </div>
+{% end %}
+</body>
+<!--<style>-->
+    <!--a{-->
+
+    <!--}-->
+    <!--.meenu{-->
+        <!--height: 50px;-->
+        <!--padding: 10px 30px;-->
+        <!--line-height: 50px;-->
+        <!--font-size: 14px;-->
+        <!--background-color: darkblue;-->
+        <!--color: white;-->
+        <!--border-radius: 8px;-->
+        <!--margin: 0 0 10px 0;-->
+    <!--}-->
+    <!--.meenu > a{-->
+        <!--color: white;-->
+        <!--text-decoration: none;-->
+    <!--}-->
+    <!--.posts{-->
+        <!--border: 1px solid darkcyan;-->
+        <!--padding: 15px 5px;-->
+    <!--}-->
+    <!--.posts > .post{-->
+        <!--background-color: cornflowerblue;-->
+        <!--color: black;-->
+        <!--padding: 10px;-->
+        <!--margin: 5px 10px;-->
+        <!--border-radius: 14px;-->
+    <!--}-->
+    <!--.post > .text{-->
+        <!--font-size: 17px;-->
+    <!--}-->
+    <!--.post > .autor{-->
+        <!--font-size: 15px;-->
+        <!--color: white;-->
+        <!--font-weight: bold;-->
+    <!--}-->
+    <!--.post > .data{-->
+        <!--font-size: 9px;-->
+        <!--font-style: italic;-->
+    <!--}-->
+
+<!--</style>-->
+</html>
