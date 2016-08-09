@@ -1,5 +1,6 @@
 # coding: utf-8
 import re
+import exeptions
 
 BLOCK_ROOT = 'root'
 BLOCK_CODE = 'code'
@@ -50,12 +51,15 @@ class _Node(object):
         if(len(keys) == 0):
             return None
         for dd in data:
-            if dd.get(keys[0]):
-                if(len(keys) == 1):
-                    return dd[keys[0]]
-                else:
-                    return self.getVal('.'.join(keys[1:]), [dd[keys[0]]])
-        return key
+            try:
+                if dd.get(keys[0]):
+                    if(len(keys) == 1):
+                        return dd[keys[0]]
+                    else:
+                        return self.getVal('.'.join(keys[1:]), [dd[keys[0]]])
+            except AttributeError as ex:
+                raise TemplateError('Parce data error: ' + str(ex))
+        return None
 
     def prn(self):
         print(self._code)
@@ -93,7 +97,8 @@ class _NodeVar(_Node):
     def compil(self, data):
         tmp = self.getVal(self._code, data)
         if tmp == None:
-            return ' DEADBEAF '
+            # return ' DEADBEAF '
+            raise TemplateError('Key {{' + self._code + '}} not found in data')
         if(type(tmp) != 'str'):
             tmp = str(tmp)
         return tmp
@@ -162,6 +167,21 @@ class _NodeIf(_NodeCode):
             return var1 != var2
         return None
 
+    def getVal(self, key, data):
+        keys = key.split('.')
+        if (len(keys) == 0):
+            return None
+        for dd in data:
+            try:
+                if dd.get(keys[0]):
+                    if (len(keys) == 1):
+                        return dd[keys[0]]
+                    else:
+                        return self.getVal('.'.join(keys[1:]), [dd[keys[0]]])
+            except AttributeError as ex:
+                raise TemplateError('Parce data error: ' + str(ex))
+        return key
+
 class _NodeElse(_NodeCode):
     def render(self, data, condition = False):
         tmp = ''#self.compil(data)
@@ -222,8 +242,6 @@ class _Tree():
         point = root
         for sheet in tmplParse:
             node = self.createNode(sheet)
-            if node is None:
-                raise Exception('Parce error')
             if (point.getType() == BLOCK_TEXT or point.getType() == BLOCK_VAR or point.getType() == BLOCK_ROOT):
                 point.setNext(node)
                 point = point.getNext()
@@ -237,7 +255,7 @@ class _Tree():
                     point = point.getFork()
                 else:
                     if len(stack) == 0:
-                        raise Exception('Parce error')
+                        raise TemplateError('Parce error: excess block {% end %}')
                     point = stack.pop()
                     point.setNext(node)
                     point = point.getNext()
@@ -260,7 +278,8 @@ class _Tree():
                 # pass
             elif (sheet.find('else') != -1):
                 node = _NodeElse
-                # pass
+            else:
+                raise TemplateError('Parce error: unknown block operator ' + sheet)
         else:
             node = _NodeText
         return node(sheet)
@@ -282,8 +301,10 @@ class Template():
             tmplRAW = file.read()
             file.close()
             return tmplRAW
-        except FileNotFoundError:
-            return None
+        except (FileNotFoundError, PermissionError) as ex:
+            # print('-----/ ', ex)
+            raise TemplateError('File template error: ' + str(ex))
+
 
     def render(self, data):
         return re.sub('[\s]{2,}', '', self._root.render(data))

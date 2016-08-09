@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="{{lang}}">
+<head>
+    <meta charset="UTF-8">
+    <title>{{title}}</title>
+    <link rel="stylesheet" type="text/css" media="screen" href="/static/css/style.css">
+    <link href="{{favicon}}" rel="shortcut icon" >
+</head>
+<body>
+<div class="menu">
+    <ul>
+        <a href="/"><li>{{home}}</li></a>
+        <!--<a href="/create"><li>{{create}}</li></a>-->
+    </ul>
+</div>
+<div class="head">
+    <h3>{{head}}</h3>
+    <div class="avatar" style="background-image: url('{{avatar}}')"></div>
+</div>
+<div class="hi">{{listBlogs}}</div>
+<div class="blogs">
+    {%for blog in blogs: %}
+        <div class="blog">
+            <!--<div class="tytle">-->
+                <!--{{blog.tytle}}-->
+            <!--</div>-->
+            <div class="title">
+                {{blog.title}}
+            </div>
+            <div class="body">
+                {{blog.text}}
+            </div>
+            <div class="foot">
+                <div class="datatime">
+                    {{blog.datatime}}
+                </div>
+                <a href="/blog/{{autor}}/{{blog.id}}?page={{page}}">
+                    <div class="btn delete">
+                        {{btnRead}}
+                    </div>
+                </a>
+            </div>
+        </div>
+    {%end%}
+</div>
+<div class="blogsCount">
+    {{countText}}{{blogCount}}
+</div>
+{{pagination}}
+</body>
+</html>

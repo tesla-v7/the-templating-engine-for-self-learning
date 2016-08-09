@@ -2,9 +2,32 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>{Title}1</title>
+    <title>{{title}}</title>
+    <link rel="stylesheet" type="text/css" media="screen" href="/static/css/style.css">
+    <link rel="shortcut icon" href="{{favicon}}">
 </head>
 <body>
-    строка запроса1: {path}
+<div class="menu">
+    <ul>
+        {% if count == 0: %}
+            <a href="/registration"><li>{{registration}}</li></a>
+        {% end %}
+        <a href="/admin"><li>{{logon}}</li></a>
+    </ul>
+</div>
+<div>
+    <h4>{{readblogs}}</h4>
+</div>
+<div class="autors">
+    {%for autor in autors%}
+        <a href="/blog/{{autor.userName}}">
+            <div class="autor">
+                <div class="avatar" style="background-image: linear-gradient(0deg, #000, #000), url('{{autor.avatar}}')"></div>
+                <div class="firstName">{{autor.firstName}}</div>
+                <div class="lastName">{{autor.lastName}}</div>
+            </div>
+        </a>
+    {%end%}
+</div>
 </body>
 </html>

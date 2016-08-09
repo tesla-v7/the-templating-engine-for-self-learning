@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="{{lang}}">
+<head>
+    <meta charset="UTF-8">
+    <title>{{title}}</title>
+    <link rel="stylesheet" type="text/css" media="screen" href="/static/css/style.css">
+    <link rel="shortcut icon" href="{{favicon}}" />
+</head>
+<body>
+<div class="head">
+    {{head}}
+</div>
+<div class="form">
+    <form method="POST" action="/create" name="postCreate">
+        <div class="edit user">
+            <div class="label">
+                {{post}}:
+            </div>
+            <div>
+                <input name='title'/>
+                <textarea name='text'></textarea>
+                <input type='checkbox' name='sandbox' value="True"/>{{labelSandbox}}<br>
+            </div>
+        </div>
+        <div class="btn logon"><button type="submit">{{send}}</button></div>
+    </form>
+</div>
+</body>
+</html>
