@@ -154,8 +154,6 @@ class InMemoryDataAccessLayer(_DataAccessLayer):
         for item in self._blogs:
             print(item)
 
-
-
 class Item():
     def find(self, key, value):
         return getattr(self, key) == value

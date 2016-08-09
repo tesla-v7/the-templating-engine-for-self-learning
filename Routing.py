@@ -63,8 +63,7 @@ class Rout:
         self.__handler = rout[2]
 
     def getHendler(self, metod, path):
-        strSprint = lambda index, path: path if index == -1 else path[:index]
-        if(self.__metod == metod and re.match(self.__path, strSprint(path.find('?'), path))):
+        if(self.__metod == metod and re.match(self.__path, path.split('?')[0])):
             return self.__handler
         return None
 
