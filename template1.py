@@ -51,6 +51,7 @@ class _Node(object):
         if(len(keys) == 0):
             return None
         for dd in data:
+            # print(key)
             try:
                 if dd.get(keys[0]):
                     if(len(keys) == 1):
@@ -126,7 +127,7 @@ class _NodeFor(_NodeCode):
             vars[3] = vars[3].replace(':', '')
             localVar = self.getVal(vars[3], data)
             if localVar == None:
-                return ' DEADBEAF '
+                return ''
         except KeyError:
             return ''
         i = 0
@@ -307,7 +308,7 @@ class Template():
 
 
     def render(self, data):
-        return re.sub('[\s]{2,}', '', self._root.render(data))
+        return str.encode(re.sub('[\s]{2,}', ' ', self._root.render(data)))
     def prn(self):
         self._root.prn()
 
