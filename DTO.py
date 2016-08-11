@@ -55,7 +55,7 @@ class Blog(Item):
     def setDatetimtNow(self):
         self.datetime = datetime.now().strftime('%Y.%m.%d %H:%M:%S')
 
-    def setDatetimt(self, value):
+    def setDatetime(self, value):
         try:
             self.datetime = datetime.strftime(value, '%Y.%m.%d %H:%M:%S')
             return True
@@ -76,25 +76,31 @@ class Blog(Item):
         text = self.text.replace('\n', '<br>')
         if words > 0:
             text = re.search(r'(\b.+?\b(\s+|$)){0,' + str(words) + '}', text).group(0) + '...'
-        return {
-            'autor': self.autor,
-            'text': text,
-            'datatime': self.datetime,
-            'id': self.id,
-            'title': self.title,
-            'sandbox': str(self.sandbox),
-        }
+        pole = ['autor', 'datetime', 'id', 'title', 'sandbox']
+        tmp = dict([(key, getattr(self, key)) for key in pole])
+        tmp['text'] = text
+        return tmp
+        # return {
+        #     'autor': self.autor,
+        #     'text': text,
+        #     'datetime': self.datetime,
+        #     'id': self.id,
+        #     'title': self.title,
+        #     'sandbox': str(self.sandbox),
+        # }
 
     def getTextRaw(self):
-        return {
-            'autor': self.autor,
-            'text': self.text.replace('\r\n', '&#13;&#10;'),
-            'datatime': self.datetime,
-            'datatimeEdit': self.datetimeEdit,
-            'id': self.id,
-            'title': self.title,
-            'sandbox': str(self.sandbox),
-        }
+        pole = ['autor', 'text', 'datetime', 'datetimeEdit', 'id', 'title', 'sandbox']
+        return dict([(key, getattr(self, key)) for key in pole])
+        # return {
+        #     'autor': self.autor,
+        #     'text': self.text.replace('\r\n', '&#13;&#10;'),
+        #     'datatime': self.datetime,
+        #     'datatimeEdit': self.datetimeEdit,
+        #     'id': self.id,
+        #     'title': self.title,
+        #     'sandbox': str(self.sandbox),
+        # }
 
     def edit(self, blog):
         self.text = blog.text

@@ -263,8 +263,8 @@ def edit(request):
                 'body': 'Пост',
                 'send': 'Отправить',
                 'labelSandbox': 'Песточница',
-                'labelDataCreate': 'Дата создания:',
-                'labelDataEdit': 'Дата редактирования:',
+                'labelDateCreate': 'Дата создания:',
+                'labelDateEdit': 'Дата редактирования:',
                 'post': blog.getTextRaw(),
                 'favicon': request.favicon,
             }

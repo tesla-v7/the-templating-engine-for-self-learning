@@ -38,7 +38,7 @@ class _DataAccessLayer:
         pass
 
 class InMemoryDataAccessLayer(_DataAccessLayer):
-    def __init__(self, id=None):
+    def __init__(self):
         self._users = []
         self._blogs = {}
 
@@ -50,10 +50,9 @@ class InMemoryDataAccessLayer(_DataAccessLayer):
 
     def addBlog(self, blog):
         try:
-            tmp = self._blogs[blog.autor]
+            self._blogs[blog.autor].append(blog)
         except KeyError:
-            self._blogs[blog.autor] = []
-        self._blogs[blog.autor].append(blog)
+            self._blogs[blog.autor] = [blog]
 
     def save(self):
         pass
