@@ -69,6 +69,7 @@ class _Node(object):
                     else:
                         return self.getVal('.'.join(keys[1:]), [dd[keys[0]]])
             except AttributeError as ex:
+                print(dd)
                 raise TemplateError('Parce data error: ' + str(ex))
         return None
 
@@ -172,6 +173,7 @@ class _NodeIf(_NodeCode):
     def _compare(self, var1, var2, oprtr):
         try:
             result = logical[oprtr](var1, var2)
+            print('if/--', self._code, var1, var2, oprtr, result)
         except KeyError as ex:
             raise TemplateError('Parce logical operations error: ' + str(ex) + ' ' + self._code)
         return result
@@ -299,6 +301,7 @@ class _Tree():
 class Template():
     def __init__(self, fileName = None, text=None):
         self.__path = './template/'
+        self.fileName = fileName
         if fileName:
             self._tmplParse = _Parse(self.__readTemplate(fileName)).getParse()
             self._root = _Tree(self._tmplParse).getCompil()
@@ -319,7 +322,11 @@ class Template():
             raise TemplateError('File template error: ' + str(ex))
 
     def render(self, data):
-        return str.encode(re.sub('[\s]{2,}', ' ', self._root.render(data)))
+        try:
+            tmp = str.encode(re.sub('[\s]{2,}', ' ', self._root.render(data)))
+            return tmp
+        except TemplateError as ex:
+            print(' '.join(['ERR', self.fileName, str(ex)]))
 
     def prn(self):
         self._root.prn()

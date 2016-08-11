@@ -76,9 +76,10 @@ class Blog(Item):
         text = self.text.replace('\n', '<br>')
         if words > 0:
             text = re.search(r'(\b.+?\b(\s+|$)){0,' + str(words) + '}', text).group(0) + '...'
-        pole = ['autor', 'datetime', 'id', 'title', 'sandbox']
+        pole = ['autor', 'datetime', 'id', 'title']
         tmp = dict([(key, getattr(self, key)) for key in pole])
         tmp['text'] = text
+        tmp['sandbox'] = str(self.sandbox)
         return tmp
         # return {
         #     'autor': self.autor,
@@ -90,8 +91,10 @@ class Blog(Item):
         # }
 
     def getTextRaw(self):
-        pole = ['autor', 'text', 'datetime', 'datetimeEdit', 'id', 'title', 'sandbox']
-        return dict([(key, getattr(self, key)) for key in pole])
+        pole = ['autor', 'text', 'datetime', 'datetimeEdit', 'id', 'title']
+        tmp = dict([(key, getattr(self, key)) for key in pole])
+        tmp['sandbox'] = str(self.sandbox)
+        return tmp
         # return {
         #     'autor': self.autor,
         #     'text': self.text.replace('\r\n', '&#13;&#10;'),

@@ -1,30 +1,30 @@
 <!DOCTYPE html>
-<html lang="{{lang}}">
+<html lang="{{lang.lang}}">
 <head>
     <meta charset="UTF-8">
-    <title>{{title}}</title>
+    <title>{{lang.title}}</title>
     <link rel="stylesheet" type="text/css" media="screen" href="/static/css/style.css">
     <link href="{{favicon}}" rel="shortcut icon" >
 </head>
 <body>
 <div class="menu">
     <ul>
-        <a href="/logout"><li>{{logout}}</li></a>
-        <a href="/create"><li>{{create}}</li></a>
+        <a href="/logout"><li>{{lang.logout}}</li></a>
+        <a href="/create"><li>{{lang.create}}</li></a>
     </ul>
 </div>
 <div class="head">
-    <h3>{{head}}</h3>
+    <h3>{{lang.head}}</h3>
 </div>
 <div class="user">
-    <div class="hi">{{hi}}</div>
-    <div class="firstName">{{user.firstName}}</div>
-    <div class="lastName">{{user.lastName}}</div>
-    <div class="avatar" style="background-image: url('{{user.avatar}}')"></div>
+    <div class="hi">{{lang.hi}}</div>
+    <div class="firstName">{{metod.user.firstName}}</div>
+    <div class="lastName">{{metod.user.lastName}}</div>
+    <div class="avatar" style="background-image: url('{{metod.user.avatar}}')"></div>
 </div>
 <div class="blogs">
-    <div class="hi">{{listBlogs}}</div>
-    {%for blog in blogs: %}
+    <div class="hi">{{lang.listBlogs}}</div>
+    {%for blog in metod.blogs: %}
         <div class="blog">
             <!--<div class="tytle">-->
                 <!--{{blog.tytle}}-->
@@ -34,7 +34,7 @@
             </div>
             {% if blog.sandbox == True: %}
                 <div class="sandbox">
-                    {{sandboxLabel}}
+                    {{lang.sandboxLabel}}
                 </div>
             {% end %}
             <div class="body">
@@ -44,14 +44,14 @@
                 <div class="datatime">
                     {{blog.datetime}}
                 </div>
-                <a href="/delete/{{blog.id}}?page={{page}}">
+                <a href="/delete/{{blog.id}}?page={{metod.page}}">
                     <div class="btn delete">
-                        {{btnDelete}}
+                        {{lang.btnDelete}}
                     </div>
                 </a>
                 <a href="/edit/{{blog.id}}">
                     <div class="btn edit">
-                        {{btnEdit}}
+                        {{lang.btnEdit}}
                     </div>
                 </a>
             </div>
@@ -60,8 +60,8 @@
     {%end%}
 </div>
 <div class="blogsCount">
-    {{countText}}{{blogCount}}
+    {{lang.countText}}{{metod.blogCount}}
 </div>
-{{pagination}}
+{{metod.pagination}}
 </body>
 </html>

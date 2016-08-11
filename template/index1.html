@@ -1,22 +1,22 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{lang.lang}}">
 <head>
     <meta charset="UTF-8">
-    <title>{{title}}</title>
+    <title>{{lang.title}}</title>
     <link rel="stylesheet" type="text/css" media="screen" href="/static/css/style.css">
     <link rel="shortcut icon" href="{{favicon}}">
 </head>
 <body>
 <div class="menu">
     <ul>
-        {% if count == 0: %}
-            <a href="/registration"><li>{{registration}}</li></a>
+        {% if metod.count == 0: %}
+            <a href="/registration"><li>{{lang.registration}}</li></a>
         {% end %}
-        <a href="/admin"><li>{{logon}}</li></a>
+        <a href="/admin"><li>{{lang.logon}}</li></a>
     </ul>
 </div>
 <div>
-    <h4>{{readblogs}}</h4>
+    <h4>{{lang.readBlog}}</h4>
 </div>
 <div class="autors">
     {%for autor in autors%}

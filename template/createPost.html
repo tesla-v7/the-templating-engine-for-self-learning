@@ -1,28 +1,28 @@
 <!DOCTYPE html>
-<html lang="{{lang}}">
+<html lang="{{lang.lang}}">
 <head>
     <meta charset="UTF-8">
-    <title>{{title}}</title>
+    <title>{{lang.title}}</title>
     <link rel="stylesheet" type="text/css" media="screen" href="/static/css/style.css">
     <link rel="shortcut icon" href="{{favicon}}" />
 </head>
 <body>
 <div class="head">
-    {{head}}
+    {{lang.head}}
 </div>
 <div class="form">
     <form method="POST" action="/create" name="postCreate">
         <div class="edit user">
             <div class="label">
-                {{post}}:
+                {{lang.post}}:
             </div>
             <div>
                 <input name='title'/>
                 <textarea name='text'></textarea>
-                <input type='checkbox' name='sandbox' value="True"/>{{labelSandbox}}<br>
+                <input type='checkbox' name='sandbox' value="True"/>{{lang.labelSandbox}}<br>
             </div>
         </div>
-        <div class="btn logon"><button type="submit">{{send}}</button></div>
+        <div class="btn logon"><button type="submit">{{lang.send}}</button></div>
     </form>
 </div>
 </body>

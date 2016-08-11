@@ -1,50 +1,47 @@
 <!DOCTYPE html>
-<html lang="{{lang}}">
+<html lang="{{lang.lang}}">
 <head>
     <meta charset="UTF-8">
-    <title>{{title}}</title>
+    <title>{{lang.title}}</title>
     <link rel="stylesheet" type="text/css" media="screen" href="/static/css/style.css">
     <link rel="shortcut icon" href="{{favicon}}" />
 </head>
 <body>
 <div class="head">
-    {{head}}
+    {{lang.head}}
 </div>
 <div class="form">
-    <form method="POST" action="/edit/{{post.id}}" name="postCreate">
+    <form method="POST" action="/edit/{{metod.post.id}}" name="postCreate">
         <div class="edit user">
             <div>
-                {{body}}:
+                {{lang.body}}:
             </div>
             <div>
                 <!--<input type="hidden" name="id" value="{{post.id}}">-->
-                <input type="text" name="title" value="{{post.title}}">
+                <input type="text" name="title" value="{{metod.post.title}}">
                 <textarea name='text'>
-                    {{post.text}}
+                    {{metod.post.text}}
                 </textarea>
                 <input type='checkbox' name='sandbox' value="True"
-                {% if post.sandbox == True: %}
+               {% if metod.post.sandbox == True: %}
                        checked
                 {% end %}
-                />{{labelSandbox}}<br>
+                />{{lang.labelSandbox}}<br>
             </div>
             <div>
-                {{labelDateCreate}}
+                {{lang.labelDateCreate}}
             </div>
             <div>
-                {{post.datetime}}
+                {{metod.post.datetime}}
             </div>
             <div>
-                {{labelDateEdit}}
+                {{lang.labelDateEdit}}
             </div>
             <div>
-                {{post.datetimeEdit}}
+                {{metod.post.datetimeEdit}}
             </div>
-
-
-
         </div>
-        <div class="btn logon"><button type="submit">{{send}}</button></div>
+        <div class="btn logon"><button type="submit">{{lang.send}}</button></div>
     </form>
 </div>
 </body>

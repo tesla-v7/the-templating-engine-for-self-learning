@@ -1,24 +1,24 @@
 <!DOCTYPE html>
-<html lang="{{lang}}">
+<html lang="{{lang.lang}}">
 <head>
     <meta charset="UTF-8">
-    <title>{{title}}</title>
+    <title>{{lang.title}}</title>
     <link rel="stylesheet" type="text/css" media="screen" href="/static/css/style.css">
     <link rel="shortcut icon" href="{{favicon}}" />
 </head>
 <body>
 <div class="head">
-    {{head}}
+    {{lang.head}}
 </div>
 <div class="form">
     <form method="POST" action="/registration" name="logon" enctype="multipart/form-data">
     <!--<form method="POST" action="/registration" name="logon" enctype="application/x-www-form-urlencoded">-->
-        <div class="edit user">{{firstName}}:<input type="text" name="firstName"/></div>
-        <div class="edit user">{{lastName}}:<input type="text" name="lastName"/></div>
-        <div class="edit user">{{login}}:<input type="text" name="userName"/></div>
-        <div class="edit pass">{{password}}:<input type="text" name="password"/></div>
-        <div class="edit pass">{{avatar}}:<input type="file" name="avatar"/></div>
-        <div class="btn logon"><button type="submit">{{registration}}</button></div>
+        <div class="edit user">{{lang.firstName}}:<input type="text" name="firstName" value="Vit"/></div>
+        <div class="edit user">{{lang.lastName}}:<input type="text" name="lastName" value="V"/></div>
+        <div class="edit user">{{lang.login}}:<input type="text" name="userName" value="tesla"/></div>
+        <div class="edit pass">{{lang.password}}:<input type="text" name="password" value="1"/></div>
+        <div class="edit pass">{{lang.avatar}}:<input type="file" name="avatar"/></div>
+        <div class="btn logon"><button type="submit">{{lang.btnRegistration}}</button></div>
     </form>
 </div>
 </body>

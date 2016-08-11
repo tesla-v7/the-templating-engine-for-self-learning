@@ -9,13 +9,11 @@ from DAL import User, Blog
 from Pagination import Pagination
 import datetime
 
-def admin(request):
+def logon(request):
     request.protocol_version = httpVersion.ver11
     bdUser = authentication(request)
     if bdUser:
         request.user = bdUser
-        print('---/loggon')
-        print(request.cookie['ID'].output(header=''))
         request.send_response(httpCode.Redirect)
         request.send_header('content-type', mimeType.html)
         request.send_header('Set-Cookie', request.cookie['ID'].output(header=''))
@@ -23,23 +21,11 @@ def admin(request):
         request.end_headers()
         return request
     try:
-        tmp = Template('admin.html')
-        data = {
-            'lang': 'ru',
-            'title': 'Админка',
-            'head': 'Авторизация',
-            'home': 'Главная',
-            'favicon': request.favicon,
-            'login': 'Пользователь',
-            'password': 'Пароль',
-            'logon': 'Вход',
-
-        }
-        text = tmp.render(data)
-        # print(text)
+        data = request.templateData
+        data['lang'] = request.templateLang['ru']['logon']
+        text = request.templates['logon'].render(data)
     except (DataError, TemplateError):
-        print('---------------/ex')
-        page500('')
+        page500(request)
         return request
     request.send_response(httpCode.Ok)
     request.send_header('content-type', mimeType.html)
@@ -51,34 +37,22 @@ def admin(request):
     request.wfile.write(text)
     return request
 
-def view(request):
+def admin(request):
     bdUser = authentication(request)
     if bdUser:
-        tmp = Template('edit.html')
         blogs = request.tableData.getBlogText(bdUser.userName, 5)
         pagination = Pagination('/admin/view', 5, 1)
-        page = pagination.getInt(request.data)
-        data = {
-            'lang': 'ru',
-            'title': 'Редактор постов',
-            'head': 'Редактор постов',
-            'hi': 'Добро пожаловать',
-            'logout': 'Выход',
-            'create': 'Создать',
+        page = pagination.getInt(request.dataGet)
+        data = request.templateData
+        data['lang'] = request.templateLang['ru']['adminPosts']
+        data['metod'] = {
             'page': str(page),
             'user': bdUser.getText(),
-            'listBlogs': 'Посты:',
-            'sandboxLabel': 'Песточница',
             'blogs': pagination.getData(page, blogs),
-            'countText': 'Всего постов: ',
             'blogCount': str(len(blogs)),
-            'btnDelete': 'Удалить',
-            'btnEdit': 'Редактировать',
             'pagination': pagination.render(page, blogs),
-            'favicon': request.favicon,
         }
-        print(data)
-        text = tmp.render(data)
+        text = request.templates['adminPosts'].render(data)
         request.send_response(httpCode.Ok)
         request.send_header('content-type', mimeType.html)
         request.end_headers()
@@ -168,18 +142,9 @@ def create(request):
     bdUser = authentication(request)
     if bdUser:
         if request.command == httpMetod.GET:
-            tmp = Template('createPost.html')
-            # blogs = request.tableData.getBlogText(bdUser.userName)
-            data = {
-                'lang': 'ru',
-                'title': 'Создать пост',
-                'head': 'Создать пост',
-                'post': 'Пост',
-                'labelSandbox': 'Песочница',
-                'send': 'Отправить',
-                'favicon': request.favicon,
-            }
-            text = tmp.render(data)
+            data = request.templateData
+            data['lang'] = request.templateLang['ru']['createPost']
+            text = request.templates['createPost'].render(data)
             request.send_response(httpCode.Ok)
             request.send_header('content-type', mimeType.html)
             request.end_headers()
@@ -187,7 +152,7 @@ def create(request):
             return request
         elif request.command == httpMetod.POST:
             blog = Blog(bdUser.userName)
-            blog.load(request.data)
+            blog.load(request.dataPost)
             request.tableData.addBlog(blog)
             blogBdAll = request.tableData.findAllBlog(bdUser.userName)
             pagination = Pagination('/admin/view', 5, 1)
@@ -219,23 +184,15 @@ def registration(request):
     if not bdUser:
         if request.command == httpMetod.POST:
             user = User()
-            user.load(request.data)
+            user.load(request.dataPost)
             request.tableData.addUser(user)
         elif request.command == httpMetod.GET:
-            tmp = Template('registration.html')
-            data = {
-                'lang': 'ru',
-                'title': 'Регистрация',
-                'head': 'Форма регистрации',
-                'firstName': 'Имя',
-                'lastName': 'Фамилия',
-                'login': 'Логин',
-                'password': 'Пароль',
-                'avatar': 'Аватар',
-                'registration': 'Регистрироваться',
-                'favicon': request.favicon,
-            }
-            text = tmp.render(data)
+            data = request.templateData
+            data['lang'] = request.templateLang['ru']['registration']
+            # data['metod'] = {
+            #
+            # }
+            text = request.templates['registration'].render(data)
             request.send_response(httpCode.Ok)
             request.send_header('content-type', mimeType.html)
             request.end_headers()
@@ -249,31 +206,18 @@ def edit(request):
     bdUser = authentication(request)
     if bdUser:
         if request.command == httpMetod.GET:
-            tmp = Template('editPost.html')
             try:
-                id = request.dataMas[1]
+                id = request.urlMas[1]
             except KeyError:
                 redirectAuthentication(request, '/admin/view?page=1')
                 return request
             blog = request.tableData.findOneBlog(bdUser.userName, 'id', id)
-            data = {
-                'lang': 'ru',
-                'title': 'Редактировать пост',
-                'head': 'Редактировать пост',
-                'body': 'Пост',
-                'send': 'Отправить',
-                'labelSandbox': 'Песточница',
-                'labelDateCreate': 'Дата создания:',
-                'labelDateEdit': 'Дата редактирования:',
+            data = request.templateData
+            data['lang'] = request.templateLang['ru']['editPost']
+            data['metod'] = {
                 'post': blog.getTextRaw(),
-                'favicon': request.favicon,
             }
-            #TODO read in google
-            # invalid
-            # boundary in multipart
-            # form
-            # b
-            text = tmp.render(data)
+            text = request.templates['editPost'].render(data)
             request.send_response(httpCode.Ok)
             request.send_header('content-type', mimeType.html)
             request.end_headers()
@@ -282,20 +226,17 @@ def edit(request):
         elif request.command == httpMetod.POST:
             blog = Blog('')
             try:
-                id = request.dataMas[1]
+                id = request.urlMas[1]
             except KeyError:
                 redirectAuthentication(request, '/admin/view?page=1')
                 return request
-            blog.load(request.data)
+            blog.load(request.dataPost)
             blog.id = id
             blogBd = request.tableData.findOneBlog(bdUser.userName, 'id', blog.id)
-            print(blogBd.getText())
-            if bdUser.userName == blogBd.autor:
-                blogBdAll = request.tableData.findAllBlog(bdUser.userName)
-                blogBd.edit(blog)
-                pagination = Pagination('/admin/view', 5, 1)
-                print('page= ', pagination.getPageNum(blogBd, blogBdAll))
-                redirectAuthentication(request, '/admin/view?page=' + str(pagination.getPageNum(blogBd, blogBdAll)))
+            blogBdAll = request.tableData.findAllBlog(bdUser.userName)
+            blogBd.edit(blog)
+            pagination = Pagination('/admin/view', 5, 1)
+            redirectAuthentication(request, '/admin/view?page=' + str(pagination.getPageNum(blogBd, blogBdAll)))
             return request
     redirectAuthentication(request, '/admin')
     return request
@@ -333,20 +274,13 @@ def logout(request):
     return request
 
 def home(request):
-    # bdUser = authentication(request)
-    data = {
-        'lang': 'ru',
-        'title': 'Редактировать пост',
-        'favicon': request.favicon,
+    data = request.templateData
+    data['lang'] = request.templateLang['ru']['index1']
+    data['metod'] = {
         'count': str(request.tableData.countUsers()),
-        'registration': 'Регистрация',
-        'logon': 'Вход',
-        'readblogs': 'Читать блоги',
         'autors': request.tableData.getAllUsers(),
     }
-    # print(data['autors'])
-    tmp = Template('index1.html')
-    text = tmp.render(data)
+    text = request.templates['index1'].render(data)
     request.send_response(httpCode.Ok)
     request.send_header('content-type', mimeType.html)
     request.end_headers()
@@ -389,7 +323,7 @@ def authentication(request):
     except KeyError:
         if request.command == httpMetod.POST:
             user = User()
-            user.load(request.data)
+            user.load(request.dataPost)
             bdUser = request.tableData.findUser('userName', user.userName)
             if (bdUser and bdUser.password == user.password):
                 expiration = datetime.datetime.now() + datetime.timedelta(days=30)
