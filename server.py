@@ -3,12 +3,16 @@ from config import serverConf
 from http_hendler import Handler
 from loger import loger
 from DAL import User, InMemoryDataAccessLayer, Blog
+from Routes import routes
+from Routing import Router
 import time
 
 def main():
     loger.file = './log/server.log'
     Handler.favicon = '/static/image/favicon_2.gif'
-    Handler.sessionData = InMemoryDataAccessLayer()
+    Handler.tableData = InMemoryDataAccessLayer()
+    Handler.routing = Router()
+    Handler.routing.addRoutes(routes)
     loger.log('Start')
     try:
         print('Server start name: {0} port: {1}'.format(serverConf.name, serverConf.port))

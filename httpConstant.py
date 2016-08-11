@@ -16,10 +16,17 @@ class mimeType:
     png = 'image/png'
     gif = 'image/gif'
     ico = 'image/vnd.microsoft.icon'
+    zip = 'application/zip'
 
     @classmethod
-    def getAttributes(cls):
-        return dict([(attr, getattr(mimeType, attr)) for attr in dir(mimeType) if not hasattr(getattr(mimeType, attr), '__call__') and not attr.startswith("__")])
+    def getMime(cls, filExtension):
+        # tmp = dict([(attr, getattr(mimeType, attr)) for attr in dir(mimeType) if not hasattr(getattr(mimeType, attr), '__call__') and not attr.startswith("__")])
+        tmp = dict([(attr, getattr(cls, attr)) for attr in dir(cls) if not hasattr(getattr(cls, attr), '__call__') and not attr.startswith("__")])
+        try:
+            mime = tmp[filExtension]
+        except KeyError:
+            mime = tmp['zip']
+        return mime
 
 class httpVersion:
     ver11 = 'HTTP/1.1'
@@ -32,4 +39,4 @@ class httpCode:
     ServerErr = 500
 
 if __name__ == '__main__':
-    print(mimeType.getAttributes())
+    print(mimeType.getMime('zip'))

@@ -26,13 +26,12 @@ class Router:
     def handle(self, request):
         try:
             handle = self.getHandle(request)
-            handle(request)
+            return handle(request)
         except HandleError as ex:
             loger.warning('No handler for url = "{}"'.format(request.path))
             handlers.page404(request)
             # print('error ---------------')
             print('Error url: {} metod: {}'.format(request.path, ex.value))
-
 
     def getHandle(self, request):
         for rout in self.__routes:
@@ -41,7 +40,6 @@ class Router:
                 return handle
 
         raise HandleError('Url Err')
-
 
     def prn(self):
         allText = '---'

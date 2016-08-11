@@ -43,7 +43,10 @@ def admin(request):
         return request
     request.send_response(httpCode.Ok)
     request.send_header('content-type', mimeType.html)
-    # request.send_header('Set-Cookie', request.cookie['ID'].output(header=''))
+    try:
+        request.send_header('Set-Cookie', request.cookie['ID'].output(header=''))
+    except KeyError:
+        pass
     request.end_headers()
     request.wfile.write(text)
     return request
@@ -95,7 +98,6 @@ def blog(request):
     blogs = request.tableData.getBlogText(user, 30, sandbox=True)
     pagination = Pagination('/'.join(['', 'blog', bdUser.userName]), 5, 1)
     page = pagination.getInt(request.data)
-    print('---/ = ', page)
     data = {
         'lang': 'ru',
         'favicon': request.favicon,
@@ -130,24 +132,9 @@ def read(request):
         page404(request)
         return request
     bdUser = request.tableData.findUser('userName', user)
-    # if not bdUser:
-    #     page404(request)
-    #     return request
-    # try:
-    #     id = request.data['id'][0]
-    # except KeyError:
-    #     page404(request)
-    #     return request
     pagination = Pagination('/'.join(['', 'blog', bdUser.userName]), 5, 1)
     page = pagination.getInt(request.data)
-    print('---/ = ', page)
-    # try:
-    #
-    # except KeyError:
-    #     page = 1
     blog = request.tableData.findOneBlog(user, 'id', id)
-    # pagination = Pagination('/'.join(['', 'blog', bdUser.userName]), 5, 1)
-
     data = {
         'lang': 'ru',
         'favicon': request.favicon,
@@ -205,7 +192,7 @@ def create(request):
             blogBdAll = request.tableData.findAllBlog(bdUser.userName)
             pagination = Pagination('/admin/view', 5, 1)
             print('page= ', pagination.getPageNum(blog, blogBdAll))
-            redirectAuthentication(request, '/admin/view?page=' + str(pagination.getPageNum(blog, blogBdAll)))
+            redirectAuthentication(request, '/admin/view?page=1')# + str(pagination.getPageNum(blog, blogBdAll)))
             return request
     redirectAuthentication(request, '/admin')
     return request
@@ -213,7 +200,7 @@ def create(request):
 def static(request):
     param = request.path.split('/')
     path = './static/' + param[2] + '/' + param[3]
-    mime = param[3].split('.')
+    mime = param[3].split('.')[1]
     try:
         file = open(path, 'rb')
         tmplRAW = file.read()
@@ -222,7 +209,7 @@ def static(request):
         page404(request)
         return request
     request.send_response(httpCode.Ok)
-    request.send_header('content-type', mimeType.getAttributes()[mime[1]])
+    request.send_header('content-type', mimeType.getMime(mime))
     request.end_headers()
     request.wfile.write(tmplRAW)
     return request
@@ -269,7 +256,6 @@ def edit(request):
                 redirectAuthentication(request, '/admin/view?page=1')
                 return request
             blog = request.tableData.findOneBlog(bdUser.userName, 'id', id)
-            # print('blog/ ', blog.getText(), request.data['id'][0])
             data = {
                 'lang': 'ru',
                 'title': 'Редактировать пост',
@@ -282,6 +268,7 @@ def edit(request):
                 'post': blog.getTextRaw(),
                 'favicon': request.favicon,
             }
+            #TODO read in google
             # invalid
             # boundary in multipart
             # form
@@ -346,7 +333,7 @@ def logout(request):
     return request
 
 def home(request):
-    bdUser = authentication(request)
+    # bdUser = authentication(request)
     data = {
         'lang': 'ru',
         'title': 'Редактировать пост',
@@ -357,7 +344,7 @@ def home(request):
         'readblogs': 'Читать блоги',
         'autors': request.tableData.getAllUsers(),
     }
-    print(data['autors'])
+    # print(data['autors'])
     tmp = Template('index1.html')
     text = tmp.render(data)
     request.send_response(httpCode.Ok)
@@ -391,11 +378,8 @@ def page500(request):
     return request
 
 def authentication(request):
-    # request.tableData.addUser(User('user_!!!', 'pass_!!!'))
     try:
-        # cookie = str(request.cookie['ID']).split(': ')
         bdUser = request.tableData.findUser('sid', request.cookie['ID'].coded_value)
-        # print('ID---/', cookie[1].split('=')[1])
         if bdUser and bdUser.sid:
             return bdUser
         else:
@@ -405,23 +389,14 @@ def authentication(request):
     except KeyError:
         if request.command == httpMetod.POST:
             user = User()
-            # length = int(request.headers['Content-Length'])
-            # post_data = urllib.parse.parse_qs(request.rfile.read(length).decode('utf-8'))
             user.load(request.data)
             bdUser = request.tableData.findUser('userName', user.userName)
             if (bdUser and bdUser.password == user.password):
                 expiration = datetime.datetime.now() + datetime.timedelta(days=30)
                 bdUser.sid = str(uuid.uuid5(uuid.NAMESPACE_DNS, bdUser.userName).hex)
                 request.cookie['ID'] = bdUser.sid
-                # request.cookie['ID_2'] = bdUser.sid
-                # request.cookie['ID_2']['path'] = '/dg'
-                # request.cookie['ID_3'] = bdUser.sid
-                # print('--/ ', request.cookie['ID_2'], ' /--')
-                # print('val--/ ', request.cookie['ID_2'].coded_value, ' /--')
-                # print('ex/ ', request.cookie['ID_2'].OutputString(attrs=[]), ' /ex')
-                # print('ex/ ', request.cookie['ID_2'].output(attrs=[], header=''), ' /ex')
                 request.cookie['ID']['Path'] = '/'
-                request.cookie['ID']['Domain'] = 'localhost'
+                # request.cookie['ID']['Domain'] = 'localhost'
                 request.cookie['ID']["expires"] = expiration.strftime("%a, %d-%b-%Y %H:%M:%S PST")
                 return bdUser
     return None

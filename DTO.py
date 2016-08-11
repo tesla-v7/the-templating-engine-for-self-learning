@@ -1,7 +1,6 @@
 from datetime import datetime
 import uuid
 import re
-# from exeptions import DataError
 
 class Item():
     def find(self, key, value):
@@ -20,16 +19,13 @@ class User(Item):
         return self.userName + ' ' + self.password
 
     def load(self, postRequest):
-        # print(postRequest)
         avatarRaw = None
         for key in postRequest:
             try:
-                # tmpKey = getattr(self, key)
                 if key != 'avatar':
                     setattr(self, key, postRequest[key])
                 else:
                     avatarRaw = postRequest[key]
-                # tmpKey = postRequest[key][0]
             except AttributeError:
                 continue
         if avatarRaw:
@@ -55,7 +51,6 @@ class Blog(Item):
         self.datetime = datetime.now().strftime('%Y.%m.%d %H:%M:%S')
         self.datetimeEdit = datetime.now().strftime('%Y.%m.%d %H:%M:%S')
         self.id = str(uuid.uuid4().hex)
-        # self.id = str(uuid.uuid5(uuid.NAMESPACE_DNS, self.autor + datetime.now().strftime('%Y.%m.%d %H:%M:%S')).hex)
 
     def setDatetimtNow(self):
         self.datetime = datetime.now().strftime('%Y.%m.%d %H:%M:%S')
@@ -72,9 +67,6 @@ class Blog(Item):
         print(postRequest)
         for key in postRequest:
             try:
-                # if key == 'text':
-                #     setattr(self, key, postRequest[key][0].replace('\n','<br>'))
-                #     continue
                 setattr(self, key, postRequest[key])
             except AttributeError:
                 continue

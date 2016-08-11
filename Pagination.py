@@ -4,43 +4,41 @@ class Pagination():
         self._itemMax = itemMax
         self._pageMax = pageMax if pageMax > 0 else 1
         self._tmpAll = '<div class="pagination">{page}</div>'
-        self._tmpPage = '<a href="{action}"><div class="page">{num}</div></a>'
 
     def getInt(self, data):
         try:
-            # print('data---/ = ', data)
             pageNum = int(data['page'][0])
-            # print('pageNum = ', pageNum)
         except (KeyError, ValueError, TypeError):
             pageNum = 1
         return pageNum
 
     def getPageNum(self, blog, mas):
         page =1
-        index = mas.index(blog) + 1
+        index = len(mas) - mas.index(blog)
         page = index // self._itemMax
         if index % self._itemMax:
             page += 1
         return page
 
-    def getData(self, pageNum, mas):
+    def getData(self, pageNum, masAZ):
+        masZA = masAZ[::-1]
         try:
             pageNum = int(pageNum)
         except ValueError:
             pageNum = 1
-        pageAll = len(mas) // self._itemMax
-        if len(mas) % self._itemMax:
+        pageAll = len(masZA) // self._itemMax
+        if len(masZA) % self._itemMax:
             pageAll += 1
         pageNum = max(1, min(pageAll, pageNum))
         startEl = self._itemMax * (pageNum - 1)
         endEl = startEl + self._itemMax
-        contEl = len(mas)
+        contEl = len(masZA)
 
         if startEl > contEl:
             return []
         if endEl > contEl:
-            return mas[startEl:]
-        return mas[startEl: endEl]
+            return masZA[startEl:]
+        return masZA[startEl: endEl]
 
 
     def render(self, pageNum, mas):
@@ -74,7 +72,6 @@ class Pagination():
                 text += tmplPage.render(i)
             else:
                 text += tmplPage.render(i, i, False)
-            # text += self._tmpPage.format(action=self._action + '?page=' + str(i), num=str(i))
             i += 1
         if pageEnd < pageAll:
             text += '...'

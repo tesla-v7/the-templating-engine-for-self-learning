@@ -1,11 +1,21 @@
 # coding: utf-8
 import re
 import exeptions
+import operator
 
 BLOCK_ROOT = 'root'
 BLOCK_CODE = 'code'
 BLOCK_VAR = 'var'
 BLOCK_TEXT = 'txt'
+
+logical = {
+    '==': operator.eq,
+    '!=': operator.ne,
+    '>': operator.gt,
+    '>=': operator.ge,
+    '<': operator.lt,
+    '<=': operator.le,
+}
 
 class TemplateError(Exception):
     pass
@@ -122,7 +132,6 @@ class _NodeFor(_NodeCode):
         vars = self._code.split(' ')
         if len(vars) != 4:
             return ''
-
         try:
             vars[3] = vars[3].replace(':', '')
             localVar = self.getVal(vars[3], data)
@@ -141,7 +150,7 @@ class _NodeFor(_NodeCode):
 class _NodeIf(_NodeCode):
     def render(self, data):
         tmp = ''
-        if self.compil(data):
+        if self._compil(data):
             if (self._fork):
                 tmp += self._fork.render(data)
         else:
@@ -153,20 +162,19 @@ class _NodeIf(_NodeCode):
             tmp += self._next.render(data)
         return tmp
 
-    def compil(self, data):
-        text = ''
+    def _compil(self, data):
         vars = self._code.split(' ')
         if len(vars) != 4:
-            return False;
+            return False
         vars[3] = vars[3].replace(':', '')
-        return self.compare(self.getVal(vars[1], data), self.getVal(vars[3], data), vars[2])
+        return self._compare(self.getVal(vars[1], data), self.getVal(vars[3], data), vars[2])
 
-    def compare(self, var1, var2, oprtr):
-        if oprtr == '==':
-            return var1 == var2
-        elif oprtr == '!=':
-            return var1 != var2
-        return None
+    def _compare(self, var1, var2, oprtr):
+        try:
+            result = logical[oprtr](var1, var2)
+        except KeyError as ex:
+            raise TemplateError('Parce logical operations error: ' + str(ex) + ' ' + self._code)
+        return result
 
     def getVal(self, key, data):
         keys = key.split('.')
@@ -289,12 +297,16 @@ class _Tree():
         return self._root
 
 class Template():
-    def __init__(self, fileName = None):
+    def __init__(self, fileName = None, text=None):
         self.__path = './template/'
-        if (fileName):
+        if fileName:
             self._tmplParse = _Parse(self.__readTemplate(fileName)).getParse()
             self._root = _Tree(self._tmplParse).getCompil()
-        pass
+            del self._tmplParse
+        if text:
+            self._tmplParse = _Parse(text).getParse()
+            self._root = _Tree(self._tmplParse).getCompil()
+            del self._tmplParse
 
     def __readTemplate(self, fileName):
         try:
@@ -306,9 +318,9 @@ class Template():
             # print('-----/ ', ex)
             raise TemplateError('File template error: ' + str(ex))
 
-
     def render(self, data):
         return str.encode(re.sub('[\s]{2,}', ' ', self._root.render(data)))
+
     def prn(self):
         self._root.prn()
 
