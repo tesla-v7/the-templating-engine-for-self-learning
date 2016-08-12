@@ -100,20 +100,23 @@ def read(request):
     pagination = Pagination('/'.join(['', 'blog', bdUser.userName]), 5, 1)
     page = pagination.getInt(request.dataGet)
     blog = request.tableData.findOneBlog(user, 'id', id)
-    data = request.templateData
-    data['lang'] = request.templateLang['ru']['blogRead']
-    data['metod'] = {
-        'fullName': ' '.join([bdUser.firstName, bdUser.lastName]),
-        'page': str(page),
-        'autor': bdUser.userName,
-        'avatar': bdUser.avatar,
-        'blog': blog.getText(),
-    }
-    text = request.templates['blogRead'].render(data)
-    request.send_response(httpCode.Ok)
-    request.send_header('content-type', mimeType.html)
-    request.end_headers()
-    request.wfile.write(text)
+    if blog:
+        data = request.templateData
+        data['lang'] = request.templateLang['ru']['blogRead']
+        data['metod'] = {
+            'fullName': ' '.join([bdUser.firstName, bdUser.lastName]),
+            'page': str(page),
+            'autor': bdUser.userName,
+            'avatar': bdUser.avatar,
+            'blog': blog.getText(),
+        }
+        text = request.templates['blogRead'].render(data)
+        request.send_response(httpCode.Ok)
+        request.send_header('content-type', mimeType.html)
+        request.end_headers()
+        request.wfile.write(text)
+        return request
+    redirectAuthentication(request, '/')
     return request
 
 def index(request):

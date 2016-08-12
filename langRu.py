@@ -1,8 +1,8 @@
 lang = {
     'index1': {
         'lang': 'ru',
-        'title': 'Админка',
-        'head': 'Авторизация',
+        'title': 'Блог',
+        'head': 'Блог ',
         'readBlog': 'Читать блог',
         'logon': 'Вход',
         'registration': 'Регистрироваться',
@@ -20,7 +20,7 @@ lang = {
     },
     'logon': {
         'lang': 'ru',
-        'title': 'Админка',
+        'title': 'Авторизация',
         'head': 'Авторизация',
         'home': 'Главная',
         'login': 'Пользователь',
@@ -60,7 +60,7 @@ lang = {
     },
     'blogsRead':{
         'lang': 'ru',
-        'title': 'Блог',
+        'title': 'Блог ',
         'head': 'Блог',
         'home': 'Главная',
         'listBlogs': 'Посты:',
@@ -69,7 +69,7 @@ lang = {
     },
     'blogRead': {
         'lang': 'ru',
-        'title': 'Блог',
+        'title': 'Пост ',
         'head': 'Блог',
         'home': 'Главная',
         'listBlogs': 'Вернуться к списку постов',
