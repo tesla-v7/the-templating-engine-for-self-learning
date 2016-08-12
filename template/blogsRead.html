@@ -1,25 +1,25 @@
 <!DOCTYPE html>
-<html lang="{{lang}}">
+<html lang="{{lang.lang}}">
 <head>
     <meta charset="UTF-8">
-    <title>{{title}}</title>
+    <title>{{lang.title}}{{metod.fullName}}</title>
     <link rel="stylesheet" type="text/css" media="screen" href="/static/css/style.css">
     <link href="{{favicon}}" rel="shortcut icon" >
 </head>
 <body>
 <div class="menu">
     <ul>
-        <a href="/"><li>{{home}}</li></a>
+        <a href="/"><li>{{lang.home}}</li></a>
         <!--<a href="/create"><li>{{create}}</li></a>-->
     </ul>
 </div>
 <div class="head">
-    <h3>{{head}}</h3>
-    <div class="avatar" style="background-image: url('{{avatar}}')"></div>
+    <h3>{{lang.head}}{{metod.fullName}}</h3>
+    <div class="avatar" style="background-image: url('{{metod.avatar}}')"></div>
 </div>
-<div class="hi">{{listBlogs}}</div>
+<div class="hi">{{lang.listBlogs}}</div>
 <div class="blogs">
-    {%for blog in blogs: %}
+    {%for blog in metod.blogs: %}
         <div class="blog">
             <!--<div class="tytle">-->
                 <!--{{blog.tytle}}-->
@@ -34,9 +34,9 @@
                 <div class="datatime">
                     {{blog.datetime}}
                 </div>
-                <a href="/blog/{{autor}}/{{blog.id}}?page={{page}}">
+                <a href="/blog/{{metod.autor}}/{{blog.id}}?page={{metod.page}}">
                     <div class="btn delete">
-                        {{btnRead}}
+                        {{lang.btnRead}}
                     </div>
                 </a>
             </div>
@@ -44,8 +44,8 @@
     {%end%}
 </div>
 <div class="blogsCount">
-    {{countText}}{{blogCount}}
+    {{lang.countText}}{{metod.blogCount}}
 </div>
-{{pagination}}
+{{metod.pagination}}
 </body>
 </html>

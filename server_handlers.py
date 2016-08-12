@@ -62,34 +62,26 @@ def admin(request):
     return request
 
 def blog(request):
-    tmp = Template('blogsRead.html')
-    user = request.path.split('?')
-    user = user[0].split('/')[2]
+    user = request.urlMas[1]
     bdUser = request.tableData.findUser('userName', user)
     if not bdUser:
         page404(request)
         return request
     blogs = request.tableData.getBlogText(user, 30, sandbox=True)
     pagination = Pagination('/'.join(['', 'blog', bdUser.userName]), 5, 1)
-    page = pagination.getInt(request.data)
-    data = {
-        'lang': 'ru',
-        'favicon': request.favicon,
-        'title': ' '.join(['Блог', bdUser.firstName, bdUser.lastName]),
-        'head': ' '.join(['Блог', bdUser.firstName, bdUser.lastName]),
+    page = pagination.getInt(request.dataGet)
+    data = request.templateData
+    data['lang'] = request.templateLang['ru']['blogsRead']
+    data['metod'] = {
+        'fullName': ' '.join([bdUser.firstName, bdUser.lastName]),
         'avatar': bdUser.avatar,
-        'home': 'Главная',
         'page': str(page),
         'autor': bdUser.userName,
-        # 'user': bdUser.getText(),
-        'listBlogs': 'Посты:',
         'blogs': pagination.getData(page, blogs),
-        'countText': 'Всего постов: ',
         'blogCount': str(len(blogs)),
-        'btnRead': 'Читать',
         'pagination': pagination.render(page, blogs),
     }
-    text = tmp.render(data)
+    text = request.templates['blogsRead'].render(data)
     request.send_response(httpCode.Ok)
     request.send_header('content-type', mimeType.html)
     request.end_headers()
@@ -97,7 +89,7 @@ def blog(request):
     return request
 
 def read(request):
-    tmp = Template('blogRead.html')
+    # tmp = Template('blogRead.html')
     urlTmp = request.path.split('?')
     try:
         user = urlTmp[0].split('/')[2]
@@ -107,23 +99,33 @@ def read(request):
         return request
     bdUser = request.tableData.findUser('userName', user)
     pagination = Pagination('/'.join(['', 'blog', bdUser.userName]), 5, 1)
-    page = pagination.getInt(request.data)
+    page = pagination.getInt(request.dataGet)
     blog = request.tableData.findOneBlog(user, 'id', id)
-    data = {
-        'lang': 'ru',
-        'favicon': request.favicon,
-        'title': ' '.join(['Блог', bdUser.firstName, bdUser.lastName]),
-        'head': ' '.join(['Блог', bdUser.firstName, bdUser.lastName]),
-        'home': 'Главная',
+    # data = {
+    #     'lang': 'ru',
+    #     'favicon': request.favicon,
+    #     'title': ' '.join(['Блог', bdUser.firstName, bdUser.lastName]),
+    #     'head': ' '.join(['Блог', bdUser.firstName, bdUser.lastName]),
+    #     'home': 'Главная',
+    #     'page': str(page),
+    #     'autor': bdUser.userName,
+    #     'avatar': bdUser.avatar,
+    #     'listBlogs': 'Вернуться к списку постов',
+    #     'blog': blog.getText(),
+    #     'countText': 'Всего постов: ',
+    #     'btnRead': 'Читать',
+    # }
+    # text = tmp.render(data)
+    data = request.templateData
+    data['lang'] = request.templateLang['ru']['blogRead']
+    data['metod'] = {
+        'fullName': ' '.join([bdUser.firstName, bdUser.lastName]),
         'page': str(page),
         'autor': bdUser.userName,
         'avatar': bdUser.avatar,
-        'listBlogs': 'Вернуться к списку постов',
         'blog': blog.getText(),
-        'countText': 'Всего постов: ',
-        'btnRead': 'Читать',
     }
-    text = tmp.render(data)
+    text = request.templates['blogRead'].render(data)
     request.send_response(httpCode.Ok)
     request.send_header('content-type', mimeType.html)
     request.end_headers()
@@ -245,15 +247,14 @@ def delete(request):
     bdUser = authentication(request)
     if bdUser:
         try:
-            id = str(request.dataMas[1])
+            id = str(request.urlMas[1])
             request.tableData.deleteBlog(bdUser.userName, 'id', id)
         except KeyError:
             pass
         try:
-            page = str(request.data['page'][0])
+            page = str(request.dataGet['page'][0])
         except KeyError:
             page = '1'
-        print('---/ page /---', page)
         redirectAuthentication(request, '/admin/view?page=' + page)
         return request
     redirectAuthentication(request, '/admin')

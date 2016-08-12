@@ -1,21 +1,21 @@
 <!DOCTYPE html>
-<html lang="{{lang}}">
+<html lang="{{lang.lang}}">
 <head>
     <meta charset="UTF-8">
-    <title>{{title}}</title>
+    <title>{{lang.title}}</title>
     <link rel="stylesheet" type="text/css" media="screen" href="/static/css/style.css">
     <link href="{{favicon}}" rel="shortcut icon" >
 </head>
 <body>
 <div class="menu">
     <ul>
-        <a href="/"><li>{{home}}</li></a>
-        <a href="/blog/{{autor}}?page={{page}}"><li>{{listBlogs}}</li></a>
+        <a href="/"><li>{{lang.home}}</li></a>
+        <a href="/blog/{{metod.autor}}?page={{metod.page}}"><li>{{lang.listBlogs}}</li></a>
     </ul>
 </div>
 <div class="head">
-    <h3>{{head}}</h3>
-    <div class="avatar" style="background-image: url('{{avatar}}')"></div>
+    <h3>{{lang.head}}</h3>
+    <div class="avatar" style="background-image: url('{{metod.avatar}}')"></div>
 </div>
 <div class="blogs">
     <div class="blog">
@@ -23,14 +23,14 @@
             <!--{{blog.tytle}}-->
         <!--</div>-->
         <div class="title">
-            {{blog.title}}
+            {{metod.blog.title}}
         </div>
         <div class="body">
-            {{blog.text}}
+            {{metod.blog.text}}
         </div>
         <div class="foot">
             <div class="datatime">
-                {{blog.datetime}}
+                {{metod.blog.datetime}}
             </div>
             <!--<a href="/read/{{autor}}?id={{blog.id}}&page={{page}}">-->
                 <!--<div class="btn delete">-->
