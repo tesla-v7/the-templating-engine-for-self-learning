@@ -281,7 +281,7 @@ def page404(request):
     request.send_response(httpCode.NotFound)
     request.send_header('content-type', mimeType.html)
     request.end_headers()
-    request.wfile.write(str.encode('404 not found'))
+    request.wfile.write(str.encode(request.templateLang['ru']['serverErr'][404]))
     return request
 
 def page500(request):
@@ -289,7 +289,7 @@ def page500(request):
     request.send_response(httpCode.ServerErr)
     request.send_header('content-type', mimeType.html)
     request.end_headers()
-    request.wfile.write(str.encode('500 server error'))
+    request.wfile.write(str.encode(request.templateLang['ru']['serverErr'][500]))
     return request
 
 def authentication(request):
