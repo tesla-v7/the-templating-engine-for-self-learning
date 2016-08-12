@@ -89,7 +89,6 @@ def blog(request):
     return request
 
 def read(request):
-    # tmp = Template('blogRead.html')
     urlTmp = request.path.split('?')
     try:
         user = urlTmp[0].split('/')[2]
@@ -101,21 +100,6 @@ def read(request):
     pagination = Pagination('/'.join(['', 'blog', bdUser.userName]), 5, 1)
     page = pagination.getInt(request.dataGet)
     blog = request.tableData.findOneBlog(user, 'id', id)
-    # data = {
-    #     'lang': 'ru',
-    #     'favicon': request.favicon,
-    #     'title': ' '.join(['Блог', bdUser.firstName, bdUser.lastName]),
-    #     'head': ' '.join(['Блог', bdUser.firstName, bdUser.lastName]),
-    #     'home': 'Главная',
-    #     'page': str(page),
-    #     'autor': bdUser.userName,
-    #     'avatar': bdUser.avatar,
-    #     'listBlogs': 'Вернуться к списку постов',
-    #     'blog': blog.getText(),
-    #     'countText': 'Всего постов: ',
-    #     'btnRead': 'Читать',
-    # }
-    # text = tmp.render(data)
     data = request.templateData
     data['lang'] = request.templateLang['ru']['blogRead']
     data['metod'] = {
@@ -133,7 +117,6 @@ def read(request):
     return request
 
 def index(request):
-    # request.protocol_version = httpVersion.ver11
     request.send_response(httpCode.Ok)
     request.send_header('content-type', mimeType.html)
     request.end_headers()
@@ -191,9 +174,6 @@ def registration(request):
         elif request.command == httpMetod.GET:
             data = request.templateData
             data['lang'] = request.templateLang['ru']['registration']
-            # data['metod'] = {
-            #
-            # }
             text = request.templates['registration'].render(data)
             request.send_response(httpCode.Ok)
             request.send_header('content-type', mimeType.html)
