@@ -1,6 +1,7 @@
 # coding: utf-8
 import re
-import exeptions
+#import exeptions
+from exeptions import TemplateError
 import operator
 
 BLOCK_ROOT = 'root'
@@ -17,8 +18,8 @@ logical = {
     '<=': operator.le,
 }
 
-class TemplateError(Exception):
-    pass
+# class TemplateError(Exception):
+#     pass
 
 class _Node(object):
     def __init__(self, text):

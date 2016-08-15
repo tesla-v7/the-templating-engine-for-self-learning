@@ -92,8 +92,7 @@ class InMemoryDataAccessLayer(_DataAccessLayer):
             except KeyError:
                 return []
         try:
-            allPost = self._blogs[autor]
-            return allPost
+            return self._blogs[autor]
         except KeyError:
             return []
 
