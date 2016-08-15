@@ -1,10 +1,10 @@
-from DTO import User, Blog
+from DataTransferObject import User, Blog
 
 class _DataAccessLayer:
     def addUser(self, data):
         pass
 
-    def countUsers(self):
+    def getCountUsers(self):
         pass
 
     def addBlog(self, data):
@@ -51,7 +51,7 @@ class InMemoryDataAccessLayer(_DataAccessLayer):
     def addUser(self, obj):
         self._users.append(obj)
 
-    def countUsers(self):
+    def getCountUsers(self):
         return len(self._users)
 
     def addBlog(self, blog):

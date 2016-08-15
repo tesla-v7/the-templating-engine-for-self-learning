@@ -1,11 +1,10 @@
 from httpConstant import mimeType
 from httpConstant import httpVersion
 from httpConstant import httpCode
-from template1 import Template
 from exeptions import DataError, TemplateError
 from httpConstant import httpMetod
 import uuid
-from DAL import User, Blog
+from DataAccessLayer import User, Blog
 from Pagination import Pagination
 import datetime
 
@@ -261,7 +260,7 @@ def home(request):
     data = request.templateData
     data['lang'] = request.templateLang['ru']['index1']
     data['metod'] = {
-        'count': str(request.tableData.countUsers()),
+        'count': str(request.tableData.getCountUsers()),
         'autors': request.tableData.getAllUsers(),
     }
     text = request.templates['index1'].render(data)

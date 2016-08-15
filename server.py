@@ -2,7 +2,7 @@ from http.server import HTTPServer
 from config import serverConf
 from http_hendler import Handler
 from loger import loger
-from DAL import User, InMemoryDataAccessLayer, Blog
+from DataAccessLayer import InMemoryDataAccessLayer
 from Routes import routes
 from Routing import Router
 from template1 import Template
