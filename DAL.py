@@ -31,10 +31,10 @@ class _DataAccessLayer:
     def findBlog(self, key, value):
         pass
 
-    def deleteUser(self, key):
+    def deleteUser(self, key, value):
         pass
 
-    def deleteBlog(self, key):
+    def deleteBlog(self, autor, key, value):
         pass
 
 class InMemoryDataAccessLayer(_DataAccessLayer):
