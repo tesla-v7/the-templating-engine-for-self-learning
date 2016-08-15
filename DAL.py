@@ -103,10 +103,10 @@ class InMemoryDataAccessLayer(_DataAccessLayer):
         return result
 
     def deleteUser(self, key, value):
-        for item in self._users:
+        for user in self._users:
             try:
-                if item.find(key, value):
-                    self._users.remove(item)
+                if user.find(key, value):
+                    self._users.remove(user)
                     return True
             except AttributeError:
                 return False
@@ -114,9 +114,9 @@ class InMemoryDataAccessLayer(_DataAccessLayer):
 
     def deleteBlog(self, autor, key, value):
         try:
-            for item in self._blogs[autor]:
-                if item.find(key, value):
-                    self._blogs[autor].remove(item)
+            for blog in self._blogs[autor]:
+                if blog.find(key, value):
+                    self._blogs[autor].remove(blog)
                     return True
         except (AttributeError, KeyError):
             return False
