@@ -58,18 +58,17 @@ class _Node(object):
 
     def getVal(self, key, data):
         keys = key.split('.')
-        if(len(keys) == 0):
+        oneKey = len(keys)
+        if oneKey == 0:
             return None
-        for dd in data:
-            # print(key)
+        for localData in data:
             try:
-                if dd.get(keys[0]):
-                    if(len(keys) == 1):
-                        return dd[keys[0]]
+                if localData.get(keys[0]):
+                    if oneKey == 1:
+                        return localData[keys[0]]
                     else:
-                        return self.getVal('.'.join(keys[1:]), [dd[keys[0]]])
+                        return self.getVal('.'.join(keys[1:]), [localData[keys[0]]])
             except AttributeError as ex:
-                print(dd)
                 raise TemplateError('Parce data error: ' + str(ex))
         return None
 
