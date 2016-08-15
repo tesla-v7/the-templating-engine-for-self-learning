@@ -37,6 +37,12 @@ class _DataAccessLayer:
     def deleteBlog(self, autor, key, value):
         pass
 
+    def print(self):
+        pass
+
+    def printBlogs(self):
+        pass
+
 class InMemoryDataAccessLayer(_DataAccessLayer):
     def __init__(self):
         self._users = []
@@ -81,18 +87,18 @@ class InMemoryDataAccessLayer(_DataAccessLayer):
             return None
         return None
 
-    def findAllBlog(self, autor, sandbox=False):
+    def findAllBlog(self, author, sandbox=False):
         if sandbox:
             allPost = []
             try:
-                for blog in self._blogs[autor]:
+                for blog in self._blogs[author]:
                     if not blog.sandbox:
                         allPost.append(blog)
                 return allPost
             except KeyError:
                 return []
         try:
-            return self._blogs[autor]
+            return self._blogs[author]
         except KeyError:
             return []
 
@@ -129,6 +135,7 @@ class InMemoryDataAccessLayer(_DataAccessLayer):
     def printBlogs(self):
         for item in self._blogs:
             print(item)
+
 
 
 

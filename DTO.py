@@ -76,37 +76,23 @@ class Blog(Item):
         text = self.text.replace('\n', '<br>')
         if words > 0:
             text = re.search(r'(\b.+?\b(\s+|$)){0,' + str(words) + '}', text).group(0) + '...'
-        pole = ['autor', 'datetime', 'id', 'title']
-        tmp = dict([(key, getattr(self, key)) for key in pole])
-        tmp['text'] = text
-        tmp['sandbox'] = str(self.sandbox)
-        return tmp
-        # return {
-        #     'autor': self.autor,
-        #     'text': text,
-        #     'datetime': self.datetime,
-        #     'id': self.id,
-        #     'title': self.title,
-        #     'sandbox': str(self.sandbox),
-        # }
+        property = ['autor', 'datetime', 'id', 'title']
+        result = dict([(key, getattr(self, key)) for key in property])
+        result['text'] = text
+        result['sandbox'] = str(self.sandbox)
+        return result
 
     def getTextRaw(self):
-        pole = ['autor', 'text', 'datetime', 'datetimeEdit', 'id', 'title']
-        tmp = dict([(key, getattr(self, key)) for key in pole])
-        tmp['sandbox'] = str(self.sandbox)
-        return tmp
-        # return {
-        #     'autor': self.autor,
-        #     'text': self.text.replace('\r\n', '&#13;&#10;'),
-        #     'datatime': self.datetime,
-        #     'datatimeEdit': self.datetimeEdit,
-        #     'id': self.id,
-        #     'title': self.title,
-        #     'sandbox': str(self.sandbox),
-        # }
+        property = ['autor', 'text', 'datetime', 'datetimeEdit', 'id', 'title']
+        result = dict([(key, getattr(self, key)) for key in property])
+        result['sandbox'] = str(self.sandbox)
+        return result
 
     def edit(self, blog):
-        self.text = blog.text
-        self.title = blog.title
-        self.sandbox = blog.sandbox
-        self.datetimeEdit = datetime.now().strftime('%Y.%m.%d %H:%M:%S')
+        if self.__class__ == blog.__class__:
+            self.text = blog.text
+            self.title = blog.title
+            self.sandbox = blog.sandbox
+            self.datetimeEdit = datetime.now().strftime('%Y.%m.%d %H:%M:%S')
+            return True
+        return False
