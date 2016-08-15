@@ -59,16 +59,16 @@ class _Node(object):
 
     def getVal(self, key, data):
         keys = key.split('.')
-        oneKey = len(keys)
-        if oneKey == 0:
+        numberKey = len(keys)
+        if numberKey == 0:
             return None
-        for localData in data:
+        for newScopeData in data:
             try:
-                if localData.get(keys[0]):
-                    if oneKey == 1:
-                        return localData[keys[0]]
+                if newScopeData.get(keys[0]):
+                    if numberKey == 1:
+                        return newScopeData[keys[0]]
                     else:
-                        return self.getVal('.'.join(keys[1:]), [localData[keys[0]]])
+                        return self.getVal('.'.join(keys[1:]), [newScopeData[keys[0]]])
             except AttributeError as ex:
                 raise TemplateError('Parce data error: ' + str(ex))
         return None
