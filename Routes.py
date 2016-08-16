@@ -1,7 +1,6 @@
 from httpConstant import httpMetod
 import server_handlers as handlers
 
-# routes = 33
 routes = [
     [httpMetod.GET, r'^/$', handlers.home],
     [httpMetod.GET, r'^/admin((/){1,1}[\w\d]*){0,0}$', handlers.logon],

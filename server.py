@@ -11,7 +11,6 @@ import time
 
 def main():
     loger.file = './log/server.log'
-    # Handler.favicon = '/static/image/favicon_2.gif'
     Handler.tableData = InMemoryDataAccessLayer()
     Handler.routing = Router()
     Handler.routing.addRoutes(routes)

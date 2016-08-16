@@ -22,7 +22,7 @@ def logon(request):
     try:
         data = request.templateData
         data['lang'] = request.templateLang['ru']['logon']
-        text = request.templates['logon'].render(data)
+        htmlPage = request.templates['logon'].render(data)
     except (DataError, TemplateError):
         page500(request)
         return request
@@ -33,7 +33,7 @@ def logon(request):
     except KeyError:
         pass
     request.end_headers()
-    request.wfile.write(text)
+    request.wfile.write(htmlPage)
     return request
 
 def admin(request):
@@ -51,11 +51,11 @@ def admin(request):
             'blogCount': str(len(blogs)),
             'pagination': pagination.render(page, blogs),
         }
-        text = request.templates['adminPosts'].render(data)
+        htmlPage = request.templates['adminPosts'].render(data)
         request.send_response(httpCode.Ok)
         request.send_header('content-type', mimeType.html)
         request.end_headers()
-        request.wfile.write(text)
+        request.wfile.write(htmlPage)
         return request
     redirectAuthentication(request, '/admin')
     return request
@@ -80,11 +80,11 @@ def blog(request):
         'blogCount': str(len(blogs)),
         'pagination': pagination.render(page, blogs),
     }
-    text = request.templates['blogsRead'].render(data)
+    htmlPage = request.templates['blogsRead'].render(data)
     request.send_response(httpCode.Ok)
     request.send_header('content-type', mimeType.html)
     request.end_headers()
-    request.wfile.write(text)
+    request.wfile.write(htmlPage)
     return request
 
 def read(request):
@@ -110,11 +110,11 @@ def read(request):
                 'avatar': bdUser.avatar,
                 'blog': blog.getText(),
             }
-            text = request.templates['blogRead'].render(data)
+            htmlPage = request.templates['blogRead'].render(data)
             request.send_response(httpCode.Ok)
             request.send_header('content-type', mimeType.html)
             request.end_headers()
-            request.wfile.write(text)
+            request.wfile.write(htmlPage)
             return request
     redirectAuthentication(request, '/')
     return request
@@ -132,11 +132,11 @@ def create(request):
         if request.command == httpMetod.GET:
             data = request.templateData
             data['lang'] = request.templateLang['ru']['createPost']
-            text = request.templates['createPost'].render(data)
+            htmlPage = request.templates['createPost'].render(data)
             request.send_response(httpCode.Ok)
             request.send_header('content-type', mimeType.html)
             request.end_headers()
-            request.wfile.write(text)
+            request.wfile.write(htmlPage)
             return request
         elif request.command == httpMetod.POST:
             blog = Blog(bdUser.userName)
@@ -153,18 +153,18 @@ def create(request):
 def static(request):
     param = request.path.split('/')
     path = './static/' + param[2] + '/' + param[3]
-    mime = param[3].split('.')[1]
+    mimeType = param[3].split('.')[1]
     try:
         file = open(path, 'rb')
-        tmplRAW = file.read()
+        contentRaw = file.read()
         file.close()
     except (FileNotFoundError, IsADirectoryError):
         page404(request)
         return request
     request.send_response(httpCode.Ok)
-    request.send_header('content-type', mimeType.getMime(mime))
+    request.send_header('content-type', mimeType.getMime(mimeType))
     request.end_headers()
-    request.wfile.write(tmplRAW)
+    request.wfile.write(contentRaw)
     return request
 
 def registration(request):
@@ -177,11 +177,11 @@ def registration(request):
         elif request.command == httpMetod.GET:
             data = request.templateData
             data['lang'] = request.templateLang['ru']['registration']
-            text = request.templates['registration'].render(data)
+            htmlPage = request.templates['registration'].render(data)
             request.send_response(httpCode.Ok)
             request.send_header('content-type', mimeType.html)
             request.end_headers()
-            request.wfile.write(text)
+            request.wfile.write(htmlPage)
             return request
     request.tableData.print()
     redirectAuthentication(request, '/admin')
@@ -202,11 +202,11 @@ def edit(request):
             data['metod'] = {
                 'post': blog.getTextRaw(),
             }
-            text = request.templates['editPost'].render(data)
+            htmlPage = request.templates['editPost'].render(data)
             request.send_response(httpCode.Ok)
             request.send_header('content-type', mimeType.html)
             request.end_headers()
-            request.wfile.write(text)
+            request.wfile.write(htmlPage)
             return request
         elif request.command == httpMetod.POST:
             blog = Blog('')
@@ -226,12 +226,12 @@ def edit(request):
     redirectAuthentication(request, '/admin')
     return request
 
-def delete(request):
+def delete(request):#TODO избавится от номера страницы по средством вычисления страницы удаляемого поста
     bdUser = authentication(request)
     if bdUser:
         try:
-            id = str(request.urlMas[1])
-            request.tableData.deleteBlog(bdUser.userName, 'id', id)
+            idPostInBlog = str(request.urlMas[1])
+            request.tableData.deleteBlog(bdUser.userName, 'id', idPostInBlog)
         except KeyError:
             pass
         try:

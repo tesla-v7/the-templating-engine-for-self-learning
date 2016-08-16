@@ -1,4 +1,3 @@
-# from Routes import routes
 from exeptions import RoutesAddError
 from exeptions import HandleError
 import server_handlers as handlers
