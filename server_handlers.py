@@ -153,7 +153,7 @@ def create(request):
 def static(request):
     param = request.path.split('/')
     path = './static/' + param[2] + '/' + param[3]
-    mimeType = param[3].split('.')[1]
+    requestMimeType = param[3].split('.')[1]
     try:
         file = open(path, 'rb')
         contentRaw = file.read()
@@ -162,7 +162,7 @@ def static(request):
         page404(request)
         return request
     request.send_response(httpCode.Ok)
-    request.send_header('content-type', mimeType.getMime(mimeType))
+    request.send_header('content-type', mimeType.getMime(requestMimeType))
     request.end_headers()
     request.wfile.write(contentRaw)
     return request
