@@ -2,7 +2,7 @@ class Pagination():
     def __init__(self, urlAction, elementsOnPage=3, pageMax=1):
         self._urlAction = urlAction
         self._elementsOnPage = elementsOnPage
-        self._pageMax = min(10, max(1, pageMax)) #if pageMax > 0 else 1
+        self._pageMax = min(10, max(1, pageMax))
         self._templatePages = '<div class="pagination">{page}</div>'
 
     def getPageNumberInRequest(self, data):
@@ -39,23 +39,24 @@ class Pagination():
         return listElemtnsZA[startElement: endElement]
 
 
-    def render(self, pageCurrentNum, mas):
+    def render(self, pageCurrentNum, listElements):
         try:
             pageCurrentNum = int(pageCurrentNum)
         except ValueError:
             pageCurrentNum = 1
         htmlPagination = ''
         page = _Page(self._urlAction + '?page=')
-        pageAll = len(mas) // self._elementsOnPage
-        if len(mas) % self._elementsOnPage:
+        pageAll = len(listElements) // self._elementsOnPage
+        if len(listElements) % self._elementsOnPage:
             pageAll += 1
 
         pageCurrentNum = max(1, min(pageAll, pageCurrentNum))
         pageStar = max(1, pageCurrentNum - self._pageMax)
         pageEnd = min(pageAll, pageCurrentNum + self._pageMax)
 
-        if pageCurrentNum > 1:
+        if pageStar > 1:
             htmlPagination += page.render(1,'<<')
+        if pageStar > 2:
             htmlPagination += page.render(pageCurrentNum - 1, '<')
         if pageStar > 1:
             htmlPagination += '...'
@@ -68,8 +69,9 @@ class Pagination():
             i += 1
         if pageEnd < pageAll:
             htmlPagination += '...'
-        if pageCurrentNum < pageAll:
+        if pageEnd < pageAll - 1:
             htmlPagination += page.render(pageCurrentNum + 1, '>')
+        if pageEnd < pageAll:
             htmlPagination += page.render(pageAll,'>>')
         return self._templatePages.format(page=htmlPagination)
 
