@@ -20,9 +20,9 @@ def logon(request):
         request.end_headers()
         return request
     try:
-        data = request.templateData
-        data['lang'] = request.templateLang['ru']['logon']
-        htmlPage = request.templates['logon'].render(data)
+        pageData = request.templateData
+        pageData['lang'] = request.templateLang['ru']['logon']
+        htmlPage = request.templates['logon'].render(pageData)
     except (DataError, TemplateError):
         page500(request)
         return request
@@ -42,16 +42,16 @@ def admin(request):
         blogs = request.tableData.getBlogText(bdUser.userName, 5)
         pagination = Pagination('/admin/view', 5, 1)
         page = pagination.getPageNumberInRequest(request.dataGet)
-        data = request.templateData
-        data['lang'] = request.templateLang['ru']['adminPosts']
-        data['metod'] = {
+        pageData = request.templateData
+        pageData['lang'] = request.templateLang['ru']['adminPosts']
+        pageData['metod'] = {
             'page': str(page),
             'user': bdUser.getText(),
             'blogs': pagination.getPageElements(page, blogs),
             'blogCount': str(len(blogs)),
             'pagination': pagination.render(page, blogs),
         }
-        htmlPage = request.templates['adminPosts'].render(data)
+        htmlPage = request.templates['adminPosts'].render(pageData)
         request.send_response(httpCode.Ok)
         request.send_header('content-type', mimeType.html)
         request.end_headers()
@@ -69,9 +69,9 @@ def blog(request):
     blogs = request.tableData.getBlogText(user, 30, sandbox=True)
     pagination = Pagination('/'.join(['', 'blog', bdUser.userName]), 5, 1)
     page = pagination.getPageNumberInRequest(request.dataGet)
-    data = request.templateData
-    data['lang'] = request.templateLang['ru']['blogsRead']
-    data['metod'] = {
+    pageData = request.templateData
+    pageData['lang'] = request.templateLang['ru']['blogsRead']
+    pageData['metod'] = {
         'fullName': ' '.join([bdUser.firstName, bdUser.lastName]),
         'avatar': bdUser.avatar,
         'page': str(page),
@@ -80,7 +80,7 @@ def blog(request):
         'blogCount': str(len(blogs)),
         'pagination': pagination.render(page, blogs),
     }
-    htmlPage = request.templates['blogsRead'].render(data)
+    htmlPage = request.templates['blogsRead'].render(pageData)
     request.send_response(httpCode.Ok)
     request.send_header('content-type', mimeType.html)
     request.end_headers()
@@ -101,16 +101,16 @@ def read(request):
         page = pagination.getPageNumberInRequest(request.dataGet)
         blog = request.tableData.findOneBlog(user, 'id', id)
         if blog:
-            data = request.templateData
-            data['lang'] = request.templateLang['ru']['blogRead']
-            data['metod'] = {
+            pageData = request.templateData
+            pageData['lang'] = request.templateLang['ru']['blogRead']
+            pageData['metod'] = {
                 'fullName': ' '.join([bdUser.firstName, bdUser.lastName]),
                 'page': str(page),
                 'autor': bdUser.userName,
                 'avatar': bdUser.avatar,
                 'blog': blog.getText(),
             }
-            htmlPage = request.templates['blogRead'].render(data)
+            htmlPage = request.templates['blogRead'].render(pageData)
             request.send_response(httpCode.Ok)
             request.send_header('content-type', mimeType.html)
             request.end_headers()
@@ -130,9 +130,9 @@ def create(request):
     bdUser = authentication(request)
     if bdUser:
         if request.command == httpMetod.GET:
-            data = request.templateData
-            data['lang'] = request.templateLang['ru']['createPost']
-            htmlPage = request.templates['createPost'].render(data)
+            pageData = request.templateData
+            pageData['lang'] = request.templateLang['ru']['createPost']
+            htmlPage = request.templates['createPost'].render(pageData)
             request.send_response(httpCode.Ok)
             request.send_header('content-type', mimeType.html)
             request.end_headers()
@@ -175,9 +175,9 @@ def registration(request):
             user.load(request.dataPost)
             request.tableData.addUser(user)
         elif request.command == httpMetod.GET:
-            data = request.templateData
-            data['lang'] = request.templateLang['ru']['registration']
-            htmlPage = request.templates['registration'].render(data)
+            pageData = request.templateData
+            pageData['lang'] = request.templateLang['ru']['registration']
+            htmlPage = request.templates['registration'].render(pageData)
             request.send_response(httpCode.Ok)
             request.send_header('content-type', mimeType.html)
             request.end_headers()
@@ -197,12 +197,12 @@ def edit(request):
                 redirectAuthentication(request, '/admin/view?page=1')
                 return request
             blog = request.tableData.findOneBlog(bdUser.userName, 'id', id)
-            data = request.templateData
-            data['lang'] = request.templateLang['ru']['editPost']
-            data['metod'] = {
+            pageData = request.templateData
+            pageData['lang'] = request.templateLang['ru']['editPost']
+            pageData['metod'] = {
                 'post': blog.getTextRaw(),
             }
-            htmlPage = request.templates['editPost'].render(data)
+            htmlPage = request.templates['editPost'].render(pageData)
             request.send_response(httpCode.Ok)
             request.send_header('content-type', mimeType.html)
             request.end_headers()
@@ -242,7 +242,6 @@ def delete(request):#TODO избавится от номера страницы 
         return request
     redirectAuthentication(request, '/admin')
     return request
-
 
 def logout(request):
     bdUser = authentication(request)
