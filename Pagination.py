@@ -5,40 +5,38 @@ class Pagination():
         self._pageMax = min(10, max(1, pageMax)) #if pageMax > 0 else 1
         self._templatePages = '<div class="pagination">{page}</div>'
 
-    def convertPageStrToInt(self, data):
+    def getPageNumberInRequest(self, data):
         try:
             pageNum = int(data['page'][0])
         except (KeyError, ValueError, TypeError):
             pageNum = 1
         return pageNum
 
-    def getPageNum(self, blog, mas):
-        page =1
-        index = len(mas) - mas.index(blog)
+    def getPageNumberOfBlog(self, blog, listElementsAZ):
+        index = len(listElementsAZ) - listElementsAZ.index(blog)
         page = index // self._elementsOnPage
         if index % self._elementsOnPage:
             page += 1
         return page
 
-    def getPageData(self, pageNum, masAZ):
-        masZA = masAZ[::-1]
+    def getPageElements(self, pageNum, listElementsAZ):
+        listElemtnsZA = listElementsAZ[::-1]
         try:
             pageNum = int(pageNum)
         except ValueError:
             pageNum = 1
-        pageAll = len(masZA) // self._elementsOnPage
-        if len(masZA) % self._elementsOnPage:
-            pageAll += 1
+        allElements = len(listElemtnsZA)
+        pageAll = allElements // self._elementsOnPage
         pageNum = max(1, min(pageAll, pageNum))
-        startEl = self._elementsOnPage * (pageNum - 1)
-        endEl = startEl + self._elementsOnPage
-        contEl = len(masZA)
-
-        if startEl > contEl:
+        if allElements % self._elementsOnPage:
+            pageAll += 1
+        startElement = self._elementsOnPage * (pageNum - 1)
+        endElement = startElement + self._elementsOnPage
+        if startElement > allElements:
             return []
-        if endEl > contEl:
-            return masZA[startEl:]
-        return masZA[startEl: endEl]
+        if endElement > allElements:
+            return listElemtnsZA[startElement:]
+        return listElemtnsZA[startElement: endElement]
 
 
     def render(self, pageCurrentNum, mas):
@@ -51,6 +49,7 @@ class Pagination():
         pageAll = len(mas) // self._elementsOnPage
         if len(mas) % self._elementsOnPage:
             pageAll += 1
+
         pageCurrentNum = max(1, min(pageAll, pageCurrentNum))
         pageStar = max(1, pageCurrentNum - self._pageMax)
         pageEnd = min(pageAll, pageCurrentNum + self._pageMax)

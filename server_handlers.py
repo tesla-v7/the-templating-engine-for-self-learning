@@ -41,13 +41,13 @@ def admin(request):
     if bdUser:
         blogs = request.tableData.getBlogText(bdUser.userName, 5)
         pagination = Pagination('/admin/view', 5, 1)
-        page = pagination.convertPageStrToInt(request.dataGet)
+        page = pagination.getPageNumberInRequest(request.dataGet)
         data = request.templateData
         data['lang'] = request.templateLang['ru']['adminPosts']
         data['metod'] = {
             'page': str(page),
             'user': bdUser.getText(),
-            'blogs': pagination.getPageData(page, blogs),
+            'blogs': pagination.getPageElements(page, blogs),
             'blogCount': str(len(blogs)),
             'pagination': pagination.render(page, blogs),
         }
@@ -68,7 +68,7 @@ def blog(request):
         return request
     blogs = request.tableData.getBlogText(user, 30, sandbox=True)
     pagination = Pagination('/'.join(['', 'blog', bdUser.userName]), 5, 1)
-    page = pagination.convertPageStrToInt(request.dataGet)
+    page = pagination.getPageNumberInRequest(request.dataGet)
     data = request.templateData
     data['lang'] = request.templateLang['ru']['blogsRead']
     data['metod'] = {
@@ -76,7 +76,7 @@ def blog(request):
         'avatar': bdUser.avatar,
         'page': str(page),
         'autor': bdUser.userName,
-        'blogs': pagination.getPageData(page, blogs),
+        'blogs': pagination.getPageElements(page, blogs),
         'blogCount': str(len(blogs)),
         'pagination': pagination.render(page, blogs),
     }
@@ -98,7 +98,7 @@ def read(request):
     bdUser = request.tableData.findUser('userName', user)
     if bdUser:
         pagination = Pagination('/'.join(['', 'blog', bdUser.userName]), 5, 1)
-        page = pagination.convertPageStrToInt(request.dataGet)
+        page = pagination.getPageNumberInRequest(request.dataGet)
         blog = request.tableData.findOneBlog(user, 'id', id)
         if blog:
             data = request.templateData
@@ -144,8 +144,8 @@ def create(request):
             request.tableData.addBlog(blog)
             blogBdAll = request.tableData.findAllBlog(bdUser.userName)
             pagination = Pagination('/admin/view', 5, 1)
-            print('page= ', pagination.getPageNum(blog, blogBdAll))
-            redirectAuthentication(request, '/admin/view?page=1')# + str(pagination.getPageNum(blog, blogBdAll)))
+            print('page= ', pagination.getPageNumberOfBlog(blog, blogBdAll))
+            redirectAuthentication(request, '/admin/view?page=1')# + str(pagination.getPageNumberOfBlog(blog, blogBdAll)))
             return request
     redirectAuthentication(request, '/admin')
     return request
@@ -221,7 +221,7 @@ def edit(request):
             blogBdAll = request.tableData.findAllBlog(bdUser.userName)
             blogBd.edit(blog)
             pagination = Pagination('/admin/view', 5, 1)
-            redirectAuthentication(request, '/admin/view?page=' + str(pagination.getPageNum(blogBd, blogBdAll)))
+            redirectAuthentication(request, '/admin/view?page=' + str(pagination.getPageNumberOfBlog(blogBd, blogBdAll)))
             return request
     redirectAuthentication(request, '/admin')
     return request
