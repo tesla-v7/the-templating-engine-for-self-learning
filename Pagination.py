@@ -1,11 +1,11 @@
 class Pagination():
-    def __init__(self, action, itemMax=3, pageMax=1):
-        self._action = action
-        self._itemMax = itemMax
-        self._pageMax = pageMax if pageMax > 0 else 1
-        self._tmpAll = '<div class="pagination">{page}</div>'
+    def __init__(self, urlAction, elementsOnPage=3, pageMax=1):
+        self._urlAction = urlAction
+        self._elementsOnPage = elementsOnPage
+        self._pageMax = min(10, max(1, pageMax)) #if pageMax > 0 else 1
+        self._templatePages = '<div class="pagination">{page}</div>'
 
-    def getInt(self, data):
+    def convertPageStrToInt(self, data):
         try:
             pageNum = int(data['page'][0])
         except (KeyError, ValueError, TypeError):
@@ -15,23 +15,23 @@ class Pagination():
     def getPageNum(self, blog, mas):
         page =1
         index = len(mas) - mas.index(blog)
-        page = index // self._itemMax
-        if index % self._itemMax:
+        page = index // self._elementsOnPage
+        if index % self._elementsOnPage:
             page += 1
         return page
 
-    def getData(self, pageNum, masAZ):
+    def getPageData(self, pageNum, masAZ):
         masZA = masAZ[::-1]
         try:
             pageNum = int(pageNum)
         except ValueError:
             pageNum = 1
-        pageAll = len(masZA) // self._itemMax
-        if len(masZA) % self._itemMax:
+        pageAll = len(masZA) // self._elementsOnPage
+        if len(masZA) % self._elementsOnPage:
             pageAll += 1
         pageNum = max(1, min(pageAll, pageNum))
-        startEl = self._itemMax * (pageNum - 1)
-        endEl = startEl + self._itemMax
+        startEl = self._elementsOnPage * (pageNum - 1)
+        endEl = startEl + self._elementsOnPage
         contEl = len(masZA)
 
         if startEl > contEl:
@@ -41,61 +41,55 @@ class Pagination():
         return masZA[startEl: endEl]
 
 
-    def render(self, pageNum, mas):
+    def render(self, pageCurrentNum, mas):
         try:
-            pageNum = int(pageNum)
+            pageCurrentNum = int(pageCurrentNum)
         except ValueError:
-            pageNum = 1
-        text = ''
-        tmplPage = _Page(self._action + '?page=')
-        pageAll = len(mas) // self._itemMax
-        if len(mas) % self._itemMax:
+            pageCurrentNum = 1
+        htmlPagination = ''
+        page = _Page(self._urlAction + '?page=')
+        pageAll = len(mas) // self._elementsOnPage
+        if len(mas) % self._elementsOnPage:
             pageAll += 1
-        pageNum = max(1, min(pageAll, pageNum))
+        pageCurrentNum = max(1, min(pageAll, pageCurrentNum))
+        pageStar = max(1, pageCurrentNum - self._pageMax)
+        pageEnd = min(pageAll, pageCurrentNum + self._pageMax)
 
-        pageStar = pageNum - self._pageMax
-        if pageStar <= 0:
-            pageStar = 1
-
-        pageEnd = pageNum + self._pageMax
-        if pageEnd > pageAll:
-            pageEnd = pageAll
-
-        if pageNum > 1:
-            text += tmplPage.render(1,'<<')
-            text += tmplPage.render(pageNum - 1,'<')
+        if pageCurrentNum > 1:
+            htmlPagination += page.render(1,'<<')
+            htmlPagination += page.render(pageCurrentNum - 1, '<')
         if pageStar > 1:
-            text += '...'
+            htmlPagination += '...'
         i = pageStar
         while i <= pageEnd:
-            if i != pageNum:
-                text += tmplPage.render(i)
+            if i != pageCurrentNum:
+                htmlPagination += page.render(i)
             else:
-                text += tmplPage.render(i, i, False)
+                htmlPagination += page.render(i, i, False)
             i += 1
         if pageEnd < pageAll:
-            text += '...'
-        if pageNum < pageAll:
-            text += tmplPage.render(pageNum + 1,'>')
-            text += tmplPage.render(pageAll,'>>')
-        return self._tmpAll.format(page=text)
+            htmlPagination += '...'
+        if pageCurrentNum < pageAll:
+            htmlPagination += page.render(pageCurrentNum + 1, '>')
+            htmlPagination += page.render(pageAll,'>>')
+        return self._templatePages.format(page=htmlPagination)
 
 class _Page():
-    def __init__(self, action):
-        self._actin = action
-        self._tmpHref = '<a href="{action}">{page}</a>'
-        self._tmpPage = '<div class="page{select}">{num}</div>'
+    def __init__(self, urlAction):
+        self._urlAction = urlAction
+        self._templateUrl = '<a href="{urlAction}">{page}</a>'
+        self._templatePage = '<div class="page{select}">{num}</div>'
 
-    def render(self, num, text=None, href=True):
-        if text:
-            tmp = self._tmpPage.format(num=text, select='' if href else ' select')
+    def render(self, numPage, label=None, href=True):
+        if label:
+            tmp = self._templatePage.format(num=label, select='' if href else ' select')
         else:
-            tmp = self._tmpPage.format(num=str(num), select='')
+            tmp = self._templatePage.format(num=str(numPage), select='')
         if href:
-            if not num:
-                return self._tmpHref.format(action=self._actin + text, page=tmp)
+            if not numPage:
+                return self._templateUrl.format(urlAction=self._urlAction + label, page=tmp)
             else:
-                return self._tmpHref.format(action=self._actin + str(num), page=tmp)
+                return self._templateUrl.format(urlAction=self._urlAction + str(numPage), page=tmp)
         return tmp
 
 if __name__ == '__main__':

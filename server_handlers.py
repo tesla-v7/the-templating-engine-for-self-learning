@@ -41,13 +41,13 @@ def admin(request):
     if bdUser:
         blogs = request.tableData.getBlogText(bdUser.userName, 5)
         pagination = Pagination('/admin/view', 5, 1)
-        page = pagination.getInt(request.dataGet)
+        page = pagination.convertPageStrToInt(request.dataGet)
         data = request.templateData
         data['lang'] = request.templateLang['ru']['adminPosts']
         data['metod'] = {
             'page': str(page),
             'user': bdUser.getText(),
-            'blogs': pagination.getData(page, blogs),
+            'blogs': pagination.getPageData(page, blogs),
             'blogCount': str(len(blogs)),
             'pagination': pagination.render(page, blogs),
         }
@@ -68,7 +68,7 @@ def blog(request):
         return request
     blogs = request.tableData.getBlogText(user, 30, sandbox=True)
     pagination = Pagination('/'.join(['', 'blog', bdUser.userName]), 5, 1)
-    page = pagination.getInt(request.dataGet)
+    page = pagination.convertPageStrToInt(request.dataGet)
     data = request.templateData
     data['lang'] = request.templateLang['ru']['blogsRead']
     data['metod'] = {
@@ -76,7 +76,7 @@ def blog(request):
         'avatar': bdUser.avatar,
         'page': str(page),
         'autor': bdUser.userName,
-        'blogs': pagination.getData(page, blogs),
+        'blogs': pagination.getPageData(page, blogs),
         'blogCount': str(len(blogs)),
         'pagination': pagination.render(page, blogs),
     }
@@ -96,25 +96,26 @@ def read(request):
         page404(request)
         return request
     bdUser = request.tableData.findUser('userName', user)
-    pagination = Pagination('/'.join(['', 'blog', bdUser.userName]), 5, 1)
-    page = pagination.getInt(request.dataGet)
-    blog = request.tableData.findOneBlog(user, 'id', id)
-    if blog:
-        data = request.templateData
-        data['lang'] = request.templateLang['ru']['blogRead']
-        data['metod'] = {
-            'fullName': ' '.join([bdUser.firstName, bdUser.lastName]),
-            'page': str(page),
-            'autor': bdUser.userName,
-            'avatar': bdUser.avatar,
-            'blog': blog.getText(),
-        }
-        text = request.templates['blogRead'].render(data)
-        request.send_response(httpCode.Ok)
-        request.send_header('content-type', mimeType.html)
-        request.end_headers()
-        request.wfile.write(text)
-        return request
+    if bdUser:
+        pagination = Pagination('/'.join(['', 'blog', bdUser.userName]), 5, 1)
+        page = pagination.convertPageStrToInt(request.dataGet)
+        blog = request.tableData.findOneBlog(user, 'id', id)
+        if blog:
+            data = request.templateData
+            data['lang'] = request.templateLang['ru']['blogRead']
+            data['metod'] = {
+                'fullName': ' '.join([bdUser.firstName, bdUser.lastName]),
+                'page': str(page),
+                'autor': bdUser.userName,
+                'avatar': bdUser.avatar,
+                'blog': blog.getText(),
+            }
+            text = request.templates['blogRead'].render(data)
+            request.send_response(httpCode.Ok)
+            request.send_header('content-type', mimeType.html)
+            request.end_headers()
+            request.wfile.write(text)
+            return request
     redirectAuthentication(request, '/')
     return request
 

@@ -4,7 +4,7 @@ from Pagination import Pagination
 class PaginationTest(unittest.TestCase):
     def testPageNum(self):
         data = range(100)
-        page = Pagination('/test', itemMax=5, pageMax=2)
+        page = Pagination('/test', elementsOnPage=5, pageMax=2)
         self.assertEqual(page.getPageNum(data[0], data), 20)
         self.assertEqual(page.getPageNum(data[2], data), 20)
         self.assertEqual(page.getPageNum(data[4], data), 20)
@@ -22,9 +22,9 @@ class PaginationTest(unittest.TestCase):
 
     def testDataPage(self):
         data = range(100)
-        page = Pagination('/test', itemMax=5, pageMax=2)
-        self.assertEqual(page.getData(1, data), data[:5])
-        self.assertEqual(page.getData(20, data), data[95:])
-        self.assertEqual(page.getData(2, data), data[5:10])
-        self.assertEqual(page.getData(19, data), data[90:95])
-        self.assertEqual(page.getData(13, data), data[60:65])
+        page = Pagination('/test', elementsOnPage=5, pageMax=2)
+        self.assertEqual(page.getPageData(1, data), data[:5])
+        self.assertEqual(page.getPageData(20, data), data[95:])
+        self.assertEqual(page.getPageData(2, data), data[5:10])
+        self.assertEqual(page.getPageData(19, data), data[90:95])
+        self.assertEqual(page.getPageData(13, data), data[60:65])
