@@ -81,16 +81,12 @@ class _Page():
         self._templatePage = '<div class="page{select}">{num}</div>'
 
     def render(self, numPage, label=None, href=True):
-        if label:
-            tmp = self._templatePage.format(num=label, select='' if href else ' select')
-        else:
-            tmp = self._templatePage.format(num=str(numPage), select='')
+        if not label:
+            label = str(numPage)
+        htmlPage = self._templatePage.format(num=label, select='' if href else ' select')
         if href:
-            if not numPage:
-                return self._templateUrl.format(urlAction=self._urlAction + label, page=tmp)
-            else:
-                return self._templateUrl.format(urlAction=self._urlAction + str(numPage), page=tmp)
-        return tmp
+            return self._templateUrl.format(urlAction=self._urlAction + str(numPage), page=htmlPage)
+        return htmlPage
 
 if __name__ == '__main__':
     page = Pagination('/admin/view', 3, 2)
