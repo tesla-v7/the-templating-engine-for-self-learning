@@ -218,13 +218,12 @@ def editPost(request):
         redirectToPage(request, '/admin')
         return request
     blog = Blog('')
+    blog.load(request.dataPost)
     try:
-        id = request.urlList[1]
+        blog.id = request.urlList[1]
     except KeyError:
         redirectToPage(request, '/admin/view?page=1')
         return request
-    blog.load(request.dataPost)
-    blog.id = id
     blogBd = request.tableData.findOneBlog(bdUser.userName, 'id', blog.id)
     blogBdAll = request.tableData.findAllBlog(bdUser.userName)
     blogBd.edit(blog)
