@@ -91,25 +91,27 @@ def blog(request):
 def read(request):
     urlTmp = request.path.split('?')
     try:
-        user = urlTmp[0].split('/')[2]
-        id = urlTmp[0].split('/')[3]
+        userName = urlTmp[0].split('/')[2]
+        idPostInBlog = urlTmp[0].split('/')[3]
     except IndexError:
         page404(request)
         return request
-    bdUser = request.tableData.findUser('userName', user)
+    bdUser = request.tableData.findUser('userName', userName)
     if bdUser:
         pagination = Pagination('/'.join(['', 'blog', bdUser.userName]), PageConst.postsToPage, PageConst.numberByttonsPagination)
-        page = pagination.getPageNumberInRequest(request.dataGet)
-        blog = request.tableData.findOneBlog(user, 'id', id)
-        if blog:
+        postRead = request.tableData.findOneBlog(bdUser.userName, 'id', idPostInBlog)
+        blogPageNum = pagination.getPageNumberOfBlogsSortZA(postRead, request.tableData.findAllBlog(bdUser.userName))
+        # page = pagination.getPageNumberInRequest(request.dataGet)
+        # blog = request.tableData.findOneBlog(userName, 'id', id)
+        if postRead:
             pageData = request.templateData
             pageData['lang'] = request.templateLang['ru']['blogRead']
             pageData['metod'] = {
                 'fullName': ' '.join([bdUser.firstName, bdUser.lastName]),
-                'page': str(page),
+                'page': str(blogPageNum),
                 'autor': bdUser.userName,
                 'avatar': bdUser.avatar,
-                'blog': blog.getText(),
+                'blog': postRead.getText(),
             }
             htmlPage = request.templates['blogRead'].render(pageData)
             request.send_response(httpCode.Ok)
