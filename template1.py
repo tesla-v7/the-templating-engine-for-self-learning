@@ -1,6 +1,5 @@
 # coding: utf-8
 import re
-#import exeptions
 from exeptions import TemplateError
 import operator
 
@@ -18,10 +17,7 @@ logical = {
     '<=': operator.le,
 }
 
-# class TemplateError(Exception):
-#     pass
-
-class _Node(object):
+class _NodeTree(object):
     def __init__(self, text):
         self._fork = None
         self._next = None
@@ -57,7 +53,7 @@ class _Node(object):
     def compil(self, data):
         pass
 
-    def getVal(self, key, data):
+    def getValue(self, key, data):
         keys = key.split('.')
         numberKey = len(keys)
         if numberKey == 0:
@@ -68,7 +64,7 @@ class _Node(object):
                     if numberKey == 1:
                         return newScopeData[keys[0]]
                     else:
-                        return self.getVal('.'.join(keys[1:]), [newScopeData[keys[0]]])
+                        return self.getValue('.'.join(keys[1:]), [newScopeData[keys[0]]])
             except AttributeError as ex:
                 raise TemplateError('Parce data error: ' + str(ex))
         return None
@@ -80,7 +76,7 @@ class _Node(object):
         if (self._next):
             self._next.prn()
 
-class _NodeText(_Node):
+class _NodeText(_NodeTree):
     def __init__(self, text):
         super(_NodeText, self).__init__(text)
         self._type = BLOCK_TEXT
@@ -94,7 +90,7 @@ class _NodeText(_Node):
     def compil(self, data):
         return self._code
 
-class _NodeVar(_Node):
+class _NodeVar(_NodeTree):
     def __init__(self, text):
         super(_NodeVar, self).__init__(text)
         self._type = BLOCK_VAR
@@ -102,12 +98,12 @@ class _NodeVar(_Node):
 
     def render(self, data):
         text = self.compil(data)
-        if (self._next):
+        if self._next:
             text += self._next.render(data)
         return text
 
     def compil(self, data):
-        tmp = self.getVal(self._code, data)
+        tmp = self.getValue(self._code, data)
         if tmp == None:
             # return ' DEADBEAF '
             raise TemplateError('Key {{' + self._code + '}} not found in data')
@@ -115,13 +111,13 @@ class _NodeVar(_Node):
             tmp = str(tmp)
         return tmp
 
-class _NodeCode(_Node):
+class _NodeOperator(_NodeTree):
     def __init__(self, text):
-        super(_NodeCode, self).__init__(text)
+        super(_NodeOperator, self).__init__(text)
         self._type = BLOCK_CODE
         self._code = self._code[2:-2]
 
-class _NodeFor(_NodeCode):
+class _NodeFor(_NodeOperator):
     def render(self, data):
         text = self.compil(data)
         if(self._next):
@@ -135,7 +131,7 @@ class _NodeFor(_NodeCode):
             return ''
         try:
             vars[3] = vars[3].replace(':', '')
-            localVar = self.getVal(vars[3], data)
+            localVar = self.getValue(vars[3], data)
             if localVar == None:
                 return ''
         except KeyError:
@@ -148,7 +144,7 @@ class _NodeFor(_NodeCode):
             _ = data.pop()
         return text
 
-class _NodeIf(_NodeCode):
+class _NodeIf(_NodeOperator):
     def render(self, data):
         tmp = ''
         if self._compil(data):
@@ -168,17 +164,16 @@ class _NodeIf(_NodeCode):
         if len(vars) != 4:
             return False
         vars[3] = vars[3].replace(':', '')
-        return self._compare(self.getVal(vars[1], data), self.getVal(vars[3], data), vars[2])
+        return self._compare(self.getValue(vars[1], data), self.getValue(vars[3], data), vars[2])
 
     def _compare(self, var1, var2, oprtr):
         try:
             result = logical[oprtr](var1, var2)
-            print('if/--', self._code, var1, var2, oprtr, result)
         except KeyError as ex:
             raise TemplateError('Parce logical operations error: ' + str(ex) + ' ' + self._code)
         return result
 
-    def getVal(self, key, data):
+    def getValue(self, key, data):
         keys = key.split('.')
         if (len(keys) == 0):
             return None
@@ -188,12 +183,12 @@ class _NodeIf(_NodeCode):
                     if (len(keys) == 1):
                         return dd[keys[0]]
                     else:
-                        return self.getVal('.'.join(keys[1:]), [dd[keys[0]]])
+                        return self.getValue('.'.join(keys[1:]), [dd[keys[0]]])
             except AttributeError as ex:
                 raise TemplateError('Parce data error: ' + str(ex))
         return key
 
-class _NodeElse(_NodeCode):
+class _NodeElse(_NodeOperator):
     def render(self, data, condition = False):
         tmp = ''#self.compil(data)
         if (condition):
@@ -202,7 +197,7 @@ class _NodeElse(_NodeCode):
             tmp += self._next.render(data)
         return tmp
 
-class _NodeEnd(_Node):
+class _NodeEnd(_NodeTree):
     def __init__(self, text):
         super(_NodeEnd, self).__init__(text)
         self._type = BLOCK_CODE
@@ -249,7 +244,7 @@ class _Tree():
         if not len(tmplParse):
             return None
         stack = []
-        root = _Node('root')
+        root = _NodeTree('root')
         point = root
         for sheet in tmplParse:
             node = self.createNode(sheet)
