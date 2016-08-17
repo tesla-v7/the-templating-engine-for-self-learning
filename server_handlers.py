@@ -7,6 +7,7 @@ import uuid
 from DataAccessLayer import User, Blog
 from Pagination import Pagination
 import datetime
+from config import PageConst
 
 def logon(request):
     request.protocol_version = httpVersion.ver11
@@ -39,15 +40,16 @@ def logon(request):
 def admin(request):
     bdUser = authentication(request)
     if bdUser:
-        blogs = request.tableData.getBlogText(bdUser.userName, 5)
-        pagination = Pagination('/admin/view', 5, 1)
+        blogs = request.tableData.getBlogText(bdUser.userName, words=5)
+        pagination = Pagination('/admin/view', PageConst.postsToPage, PageConst.numberByttonsPagination)
         page = pagination.getPageNumberInRequest(request.dataGet)
+        print('admin.page ', page)
         pageData = request.templateData
         pageData['lang'] = request.templateLang['ru']['adminPosts']
         pageData['metod'] = {
-            'page': str(page),
+            # 'page': str(page),
             'user': bdUser.getText(),
-            'blogs': pagination.getPageElements(page, blogs),
+            'blogs': pagination.getPageElementsSortZA(page, blogs),
             'blogCount': str(len(blogs)),
             'pagination': pagination.render(page, blogs),
         }
@@ -61,13 +63,12 @@ def admin(request):
     return request
 
 def blog(request):
-    user = request.urlMas[1]
-    bdUser = request.tableData.findUser('userName', user)
+    bdUser = request.tableData.findUser('userName', request.urlMas[1])
     if not bdUser:
         page404(request)
         return request
-    blogs = request.tableData.getBlogText(user, 30, sandbox=True)
-    pagination = Pagination('/'.join(['', 'blog', bdUser.userName]), 5, 1)
+    blogs = request.tableData.getBlogText(bdUser.userName, 30, sandbox=True)
+    pagination = Pagination('/'.join(['', 'blog', bdUser.userName]), PageConst.postsToPage, PageConst.numberByttonsPagination)
     page = pagination.getPageNumberInRequest(request.dataGet)
     pageData = request.templateData
     pageData['lang'] = request.templateLang['ru']['blogsRead']
@@ -76,7 +77,7 @@ def blog(request):
         'avatar': bdUser.avatar,
         'page': str(page),
         'autor': bdUser.userName,
-        'blogs': pagination.getPageElements(page, blogs),
+        'blogs': pagination.getPageElementsSortZA(page, blogs),
         'blogCount': str(len(blogs)),
         'pagination': pagination.render(page, blogs),
     }
@@ -97,7 +98,7 @@ def read(request):
         return request
     bdUser = request.tableData.findUser('userName', user)
     if bdUser:
-        pagination = Pagination('/'.join(['', 'blog', bdUser.userName]), 5, 1)
+        pagination = Pagination('/'.join(['', 'blog', bdUser.userName]), PageConst.postsToPage, PageConst.numberByttonsPagination)
         page = pagination.getPageNumberInRequest(request.dataGet)
         blog = request.tableData.findOneBlog(user, 'id', id)
         if blog:
@@ -143,9 +144,9 @@ def create(request):
             blog.load(request.dataPost)
             request.tableData.addBlog(blog)
             blogBdAll = request.tableData.findAllBlog(bdUser.userName)
-            pagination = Pagination('/admin/view', 5, 1)
-            print('page= ', pagination.getPageNumberOfBlog(blog, blogBdAll))
-            redirectAuthentication(request, '/admin/view?page=1')# + str(pagination.getPageNumberOfBlog(blog, blogBdAll)))
+            pagination = Pagination('/admin/view', PageConst.postsToPage, PageConst.numberByttonsPagination)
+            print('page= ', pagination.getPageNumberOfBlogsSortZA(blog, blogBdAll))
+            redirectAuthentication(request, '/admin/view?page=1')# + str(pagination.getPageNumberOfBlogsSortZA(blog, blogBdAll)))
             return request
     redirectAuthentication(request, '/admin')
     return request
@@ -220,25 +221,32 @@ def edit(request):
             blogBd = request.tableData.findOneBlog(bdUser.userName, 'id', blog.id)
             blogBdAll = request.tableData.findAllBlog(bdUser.userName)
             blogBd.edit(blog)
-            pagination = Pagination('/admin/view', 5, 1)
-            redirectAuthentication(request, '/admin/view?page=' + str(pagination.getPageNumberOfBlog(blogBd, blogBdAll)))
+            pagination = Pagination('/admin/view', PageConst.postsToPage, PageConst.numberByttonsPagination)
+            redirectAuthentication(request, '/admin/view?page=' + str(pagination.getPageNumberOfBlogsSortZA(blogBd, blogBdAll)))
             return request
     redirectAuthentication(request, '/admin')
     return request
 
 def delete(request):#TODO избавится от номера страницы по средством вычисления страницы удаляемого поста
     bdUser = authentication(request)
+    page = '1'
     if bdUser:
         try:
             idPostInBlog = str(request.urlMas[1])
+            pagination = Pagination('', PageConst.postsToPage, PageConst.numberByttonsPagination)
+            # page = pagination.getPageNumberInRequest(request.dataGet)
+            # print(bdUser.userName, 'id', idPostInBlog)
+            # print(request.tableData.findOneBlog(bdUser.userName, 'id', idPostInBlog))
+            postDelete = request.tableData.findOneBlog(bdUser.userName, 'id', idPostInBlog)
+            page = pagination.getPageNumberOfBlogsSortZA(postDelete, request.tableData.findAllBlog(bdUser.userName))
             request.tableData.deleteBlog(bdUser.userName, 'id', idPostInBlog)
         except KeyError:
             pass
-        try:
-            page = str(request.dataGet['page'][0])
-        except KeyError:
-            page = '1'
-        redirectAuthentication(request, '/admin/view?page=' + page)
+        # try:
+        #     page = str(request.dataGet['page'][0])
+        # except KeyError:
+        #     page = '1'
+        redirectAuthentication(request, '/admin/view?page=' + str(page))
         return request
     redirectAuthentication(request, '/admin')
     return request

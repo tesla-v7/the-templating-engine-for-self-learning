@@ -78,10 +78,15 @@ class InMemoryDataAccessLayer(_DataAccessLayer):
             users.append(user.getText())
         return users
 
-    def findOneBlog(self, autor, id, value):
+    def findOneBlog(self, autor, key, value):
+        print(self._blogs[autor])
+        print(key, value)
         try:
             for item in self._blogs[autor]:
-                if item.find(id, value):
+                print(key)
+                # print(item[key], value)
+                if item.find(key, value):
+                    print(item.id)
                     return item
         except (AttributeError, KeyError):
             return None

@@ -8,3 +8,8 @@ class serverConf:
 
 class templateConf:
     dir = os.path.join(os.getcwd(), 'templates')
+
+class PageConst:
+    postsToPage = 5
+    numberByttonsPagination = 1
+

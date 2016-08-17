@@ -1,5 +1,5 @@
 class Pagination():
-    def __init__(self, urlAction, elementsOnPage=3, pageMax=1):
+    def __init__(self, urlAction='', elementsOnPage=3, pageMax=1):
         self._urlAction = urlAction
         self._elementsOnPage = elementsOnPage
         self._pageMax = min(10, max(1, pageMax))
@@ -12,14 +12,17 @@ class Pagination():
             pageNum = 1
         return pageNum
 
-    def getPageNumberOfBlog(self, blog, listElementsAZ):
-        index = len(listElementsAZ) - listElementsAZ.index(blog)
+    def getPageNumberOfBlogsSortZA(self, blog, listElementsAZ):
+        try:
+            index = len(listElementsAZ) - listElementsAZ.index(blog)
+        except ValueError:
+            return 1
         page = index // self._elementsOnPage
         if index % self._elementsOnPage:
             page += 1
         return page
 
-    def getPageElements(self, pageNum, listElementsAZ):
+    def getPageElementsSortZA(self, pageNum, listElementsAZ):
         listElemtnsZA = listElementsAZ[::-1]
         try:
             pageNum = int(pageNum)
@@ -27,9 +30,9 @@ class Pagination():
             pageNum = 1
         allElements = len(listElemtnsZA)
         pageAll = allElements // self._elementsOnPage
-        pageNum = max(1, min(pageAll, pageNum))
         if allElements % self._elementsOnPage:
             pageAll += 1
+        pageNum = max(1, min(pageAll, pageNum))
         startElement = self._elementsOnPage * (pageNum - 1)
         endElement = startElement + self._elementsOnPage
         if startElement > allElements:
@@ -37,7 +40,6 @@ class Pagination():
         if endElement > allElements:
             return listElemtnsZA[startElement:]
         return listElemtnsZA[startElement: endElement]
-
 
     def render(self, pageCurrentNumber, listElements):
         try:
