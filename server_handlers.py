@@ -59,7 +59,7 @@ def postsEdit(request):
         request.end_headers()
         request.wfile.write(htmlPage)
         return request
-    redirectAuthentication(request, '/admin')
+    redirectToPage(request, '/admin')
     return request
 
 def blogsRead(request):
@@ -97,53 +97,53 @@ def blogRead(request):
         page404(request)
         return request
     bdUser = request.tableData.findUser('userName', userName)
-    if bdUser:
-        pagination = Pagination('/'.join(['', 'blog', bdUser.userName]), PageConst.postsToPage, PageConst.numberByttonsPagination)
-        postRead = request.tableData.findOneBlog(bdUser.userName, 'id', idPostInBlog)
-        blogPageNum = pagination.getPageNumberOfBlogsSortZA(postRead, request.tableData.findAllBlog(bdUser.userName))
-        # page = pagination.getPageNumberInRequest(request.dataGet)
-        # blog = request.tableData.findOneBlog(userName, 'id', id)
-        if postRead:
-            pageData = request.templateData
-            pageData['lang'] = request.templateLang['ru']['blogRead']
-            pageData['metod'] = {
-                'fullName': ' '.join([bdUser.firstName, bdUser.lastName]),
-                'page': str(blogPageNum),
-                'autor': bdUser.userName,
-                'avatar': bdUser.avatar,
-                'blog': postRead.getText(),
-            }
-            htmlPage = request.templates['blogRead'].render(pageData)
-            request.send_response(httpCode.Ok)
-            request.send_header('content-type', mimeType.html)
-            request.end_headers()
-            request.wfile.write(htmlPage)
-            return request
-    redirectAuthentication(request, '/')
+    if not bdUser:
+        redirectToPage(request, '/')
+        return request
+    pagination = Pagination('/'.join(['', 'blog', bdUser.userName]), PageConst.postsToPage, PageConst.numberByttonsPagination)
+    postRead = request.tableData.findOneBlog(bdUser.userName, 'id', idPostInBlog)
+    blogPageNum = pagination.getPageNumberOfBlogsSortZA(postRead, request.tableData.findAllBlog(bdUser.userName))
+    if postRead:
+        pageData = request.templateData
+        pageData['lang'] = request.templateLang['ru']['blogRead']
+        pageData['metod'] = {
+            'fullName': ' '.join([bdUser.firstName, bdUser.lastName]),
+            'page': str(blogPageNum),
+            'autor': bdUser.userName,
+            'avatar': bdUser.avatar,
+            'blog': postRead.getText(),
+        }
+        htmlPage = request.templates['blogRead'].render(pageData)
+        request.send_response(httpCode.Ok)
+        request.send_header('content-type', mimeType.html)
+        request.end_headers()
+        request.wfile.write(htmlPage)
+        return request
+
+
+def pageCreatePost(request):
+    bdUser = authentication(request)
+    if not bdUser:
+        redirectToPage(request, '/admin')
+        return request
+    pageData = request.templateData
+    pageData['lang'] = request.templateLang['ru']['createPost']
+    htmlPage = request.templates['createPost'].render(pageData)
+    request.send_response(httpCode.Ok)
+    request.send_header('content-type', mimeType.html)
+    request.end_headers()
+    request.wfile.write(htmlPage)
     return request
 
 def createPost(request):
     bdUser = authentication(request)
-    if bdUser:
-        if request.command == httpMetod.GET:
-            pageData = request.templateData
-            pageData['lang'] = request.templateLang['ru']['createPost']
-            htmlPage = request.templates['createPost'].render(pageData)
-            request.send_response(httpCode.Ok)
-            request.send_header('content-type', mimeType.html)
-            request.end_headers()
-            request.wfile.write(htmlPage)
-            return request
-        elif request.command == httpMetod.POST:
-            blog = Blog(bdUser.userName)
-            blog.load(request.dataPost)
-            request.tableData.addBlog(blog)
-            blogBdAll = request.tableData.findAllBlog(bdUser.userName)
-            pagination = Pagination('/admin/view', PageConst.postsToPage, PageConst.numberByttonsPagination)
-            print('page= ', pagination.getPageNumberOfBlogsSortZA(blog, blogBdAll))
-            redirectAuthentication(request, '/admin/view?page=1')# + str(pagination.getPageNumberOfBlogsSortZA(blog, blogBdAll)))
-            return request
-    redirectAuthentication(request, '/admin')
+    if not bdUser:
+        redirectToPage(request, '/admin')
+        return request
+    blog = Blog(bdUser.userName)
+    blog.load(request.dataPost)
+    request.tableData.addBlog(blog)
+    redirectToPage(request, '/admin/view?page=1')
     return request
 
 def staticContentReturn(request):
@@ -163,81 +163,93 @@ def staticContentReturn(request):
     request.wfile.write(contentRaw)
     return request
 
+def pageRegistrationUser(request):
+    bdUser = authentication(request)
+    if bdUser:
+        request.tableData.print()
+        redirectToPage(request, '/admin')
+        return request
+    pageData = request.templateData
+    pageData['lang'] = request.templateLang['ru']['registration']
+    htmlPage = request.templates['registration'].render(pageData)
+    request.send_response(httpCode.Ok)
+    request.send_header('content-type', mimeType.html)
+    request.end_headers()
+    request.wfile.write(htmlPage)
+    return request
+
 def registrationUser(request):
     bdUser = authentication(request)
+    if bdUser:
+        request.tableData.print()
+        redirectToPage(request, '/admin/' + bdUser.userName)
+        return request
+    user = User()
+    user.load(request.dataPost)
+    request.tableData.addUser(user)
+    redirectToPage(request, '/admin')
+    return request
+
+def pageEditPost(request):
+    bdUser = authentication(request)
     if not bdUser:
-        if request.command == httpMetod.POST:
-            user = User()
-            user.load(request.dataPost)
-            request.tableData.addUser(user)
-        elif request.command == httpMetod.GET:
-            pageData = request.templateData
-            pageData['lang'] = request.templateLang['ru']['registration']
-            htmlPage = request.templates['registration'].render(pageData)
-            request.send_response(httpCode.Ok)
-            request.send_header('content-type', mimeType.html)
-            request.end_headers()
-            request.wfile.write(htmlPage)
-            return request
-    request.tableData.print()
-    redirectAuthentication(request, '/admin')
+        redirectToPage(request, '/admin')
+        return request
+    try:
+        id = request.urlMas[1]
+    except KeyError:
+        redirectToPage(request, '/admin/view?page=1')
+        return request
+    blog = request.tableData.findOneBlog(bdUser.userName, 'id', id)
+    pageData = request.templateData
+    pageData['lang'] = request.templateLang['ru']['editPost']
+    pageData['metod'] = {
+        'post': blog.getTextRaw(),
+    }
+    htmlPage = request.templates['editPost'].render(pageData)
+    request.send_response(httpCode.Ok)
+    request.send_header('content-type', mimeType.html)
+    request.end_headers()
+    request.wfile.write(htmlPage)
     return request
 
 def editPost(request):
     bdUser = authentication(request)
-    if bdUser:
-        if request.command == httpMetod.GET:
-            try:
-                id = request.urlMas[1]
-            except KeyError:
-                redirectAuthentication(request, '/admin/view?page=1')
-                return request
-            blog = request.tableData.findOneBlog(bdUser.userName, 'id', id)
-            pageData = request.templateData
-            pageData['lang'] = request.templateLang['ru']['editPost']
-            pageData['metod'] = {
-                'post': blog.getTextRaw(),
-            }
-            htmlPage = request.templates['editPost'].render(pageData)
-            request.send_response(httpCode.Ok)
-            request.send_header('content-type', mimeType.html)
-            request.end_headers()
-            request.wfile.write(htmlPage)
-            return request
-        elif request.command == httpMetod.POST:
-            blog = Blog('')
-            try:
-                id = request.urlMas[1]
-            except KeyError:
-                redirectAuthentication(request, '/admin/view?page=1')
-                return request
-            blog.load(request.dataPost)
-            blog.id = id
-            blogBd = request.tableData.findOneBlog(bdUser.userName, 'id', blog.id)
-            blogBdAll = request.tableData.findAllBlog(bdUser.userName)
-            blogBd.edit(blog)
-            pagination = Pagination('/admin/view', PageConst.postsToPage, PageConst.numberByttonsPagination)
-            redirectAuthentication(request, '/admin/view?page=' + str(pagination.getPageNumberOfBlogsSortZA(blogBd, blogBdAll)))
-            return request
-    redirectAuthentication(request, '/admin')
+    if not bdUser:
+        redirectToPage(request, '/admin')
+        return request
+    blog = Blog('')
+    try:
+        id = request.urlMas[1]
+    except KeyError:
+        redirectToPage(request, '/admin/view?page=1')
+        return request
+    blog.load(request.dataPost)
+    blog.id = id
+    blogBd = request.tableData.findOneBlog(bdUser.userName, 'id', blog.id)
+    blogBdAll = request.tableData.findAllBlog(bdUser.userName)
+    blogBd.edit(blog)
+    pagination = Pagination('/admin/view', PageConst.postsToPage, PageConst.numberByttonsPagination)
+    redirectToPage(request, '/admin/view?page=' + str(pagination.getPageNumberOfBlogsSortZA(blogBd, blogBdAll)))
     return request
 
 def deletePostId(request):
     bdUser = authentication(request)
-    if bdUser:
-        try:
-            idPostInBlog = str(request.urlMas[1])
-            pagination = Pagination('', PageConst.postsToPage, PageConst.numberByttonsPagination)
-            postDelete = request.tableData.findOneBlog(bdUser.userName, 'id', idPostInBlog)
-            page = pagination.getPageNumberOfBlogsSortZA(postDelete, request.tableData.findAllBlog(bdUser.userName))
-            request.tableData.deleteBlog(bdUser.userName, 'id', idPostInBlog)
-        except KeyError:
-            redirectAuthentication(request, '/admin')
-            return request
-        redirectAuthentication(request, '/admin/view?page=' + str(page))
+    if not bdUser:
+        redirectToPage(request, '/admin')
         return request
-    redirectAuthentication(request, '/admin')
+    try:
+        idPostInBlog = str(request.urlMas[1])
+        pagination = Pagination('', PageConst.postsToPage, PageConst.numberByttonsPagination)
+        postDelete = request.tableData.findOneBlog(bdUser.userName, 'id', idPostInBlog)
+        page = pagination.getPageNumberOfBlogsSortZA(postDelete, request.tableData.findAllBlog(bdUser.userName))
+        request.tableData.deleteBlog(bdUser.userName, 'id', idPostInBlog)
+    except KeyError:
+        redirectToPage(request, '/admin')
+        return request
+    redirectToPage(request, '/admin/view?page=' + str(page))
     return request
+
 
 def logoutUser(request):
     bdUser = authentication(request)
@@ -314,7 +326,7 @@ def authentication(request):
                 return bdUser
     return None
 
-def redirectAuthentication(request, path='/'):
+def redirectToPage(request, path='/'):
     request.send_response(httpCode.Redirect)
     request.send_header('content-type', mimeType.html)
     request.send_header('Location', path)
