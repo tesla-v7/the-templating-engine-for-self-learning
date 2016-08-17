@@ -10,7 +10,7 @@ class Handler(BaseHTTPRequestHandler):
     routing = None
     templates = None
     templateData = None
-    urlMas = None
+    urlList = None
     dataGet = None
     dataPost = None
 
@@ -22,13 +22,8 @@ class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         self.sessionCookie()
         data = self.path.split('?')
-        request = {}
-        # self.dataMas = data[0].split('/')
-        self.urlMas = data[0].split('/')
-        # self.dataMas.pop(0)
-        self.urlMas.pop(0)
-
-        # self.data = {} if len(data) < 2 else urllib.parse.parse_qs(data[1])
+        self.urlList = data[0].split('/')
+        self.urlList.pop(0)
         self.dataGet = {} if len(data) < 2 else urllib.parse.parse_qs(data[1])
         loger.log('url = "{}"'.format(self.path))
         self.routing.handle(request=self)
@@ -36,8 +31,8 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self):
         self.sessionCookie()
         data = self.path.split('?')
-        self.urlMas = data[0].split('/')
-        self.urlMas.pop(0)
+        self.urlList = data[0].split('/')
+        self.urlList.pop(0)
         ctype, pdict = parse_header(self.headers['content-type'])
         if ctype == 'multipart/form-data':
             pdict['boundary'] = bytes(pdict['boundary'], "utf-8")

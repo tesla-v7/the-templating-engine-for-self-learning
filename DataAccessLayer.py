@@ -79,12 +79,8 @@ class InMemoryDataAccessLayer(_DataAccessLayer):
         return users
 
     def findOneBlog(self, autor, key, value):
-        print(self._blogs[autor])
-        print(key, value)
         try:
             for item in self._blogs[autor]:
-                print(key)
-                # print(item[key], value)
                 if item.find(key, value):
                     print(item.id)
                     return item

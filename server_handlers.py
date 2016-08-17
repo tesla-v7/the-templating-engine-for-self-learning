@@ -63,7 +63,7 @@ def postsEdit(request):
     return request
 
 def blogsRead(request):
-    bdUser = request.tableData.findUser('userName', request.urlMas[1])
+    bdUser = request.tableData.findUser('userName', request.urlList[1])
     if not bdUser:
         page404(request)
         return request
@@ -119,7 +119,6 @@ def blogRead(request):
         request.end_headers()
         request.wfile.write(htmlPage)
         return request
-
 
 def pageCreatePost(request):
     bdUser = authentication(request)
@@ -196,7 +195,7 @@ def pageEditPost(request):
         redirectToPage(request, '/admin')
         return request
     try:
-        id = request.urlMas[1]
+        id = request.urlList[1]
     except KeyError:
         redirectToPage(request, '/admin/view?page=1')
         return request
@@ -220,7 +219,7 @@ def editPost(request):
         return request
     blog = Blog('')
     try:
-        id = request.urlMas[1]
+        id = request.urlList[1]
     except KeyError:
         redirectToPage(request, '/admin/view?page=1')
         return request
@@ -239,7 +238,7 @@ def deletePostId(request):
         redirectToPage(request, '/admin')
         return request
     try:
-        idPostInBlog = str(request.urlMas[1])
+        idPostInBlog = str(request.urlList[1])
         pagination = Pagination('', PageConst.postsToPage, PageConst.numberByttonsPagination)
         postDelete = request.tableData.findOneBlog(bdUser.userName, 'id', idPostInBlog)
         page = pagination.getPageNumberOfBlogsSortZA(postDelete, request.tableData.findAllBlog(bdUser.userName))
@@ -279,7 +278,6 @@ def homePage(request):
     return request
 
 def about(request):
-    # request.protocol_version = httpVersion.ver11
     request.send_response(httpCode.Ok)
     request.send_header('content-type', mimeType.html)
     request.end_headers()
@@ -287,7 +285,6 @@ def about(request):
     return request
 
 def page404(request):
-    # request.protocol_version = httpVersion.ver11
     request.send_response(httpCode.NotFound)
     request.send_header('content-type', mimeType.html)
     request.end_headers()
@@ -295,7 +292,6 @@ def page404(request):
     return request
 
 def page500(request):
-    # request.protocol_version = httpVersion.ver11
     request.send_response(httpCode.ServerErr)
     request.send_header('content-type', mimeType.html)
     request.end_headers()
@@ -321,7 +317,6 @@ def authentication(request):
                 bdUser.sid = str(uuid.uuid5(uuid.NAMESPACE_DNS, bdUser.userName).hex)
                 request.cookie['ID'] = bdUser.sid
                 request.cookie['ID']['Path'] = '/'
-                # request.cookie['ID']['Domain'] = 'localhost'
                 request.cookie['ID']["expires"] = expiration.strftime("%a, %d-%b-%Y %H:%M:%S PST")
                 return bdUser
     return None

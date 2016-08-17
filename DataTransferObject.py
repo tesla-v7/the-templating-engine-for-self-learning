@@ -64,7 +64,6 @@ class Blog(Item):
             return False
 
     def load(self, postRequest):
-        print(postRequest)
         for key in postRequest:
             try:
                 setattr(self, key, postRequest[key])
