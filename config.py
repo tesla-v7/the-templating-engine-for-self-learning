@@ -13,3 +13,5 @@ class PageConst:
     postsToPage = 5
     numberByttonsPagination = 1
 
+language = 'ru'
+

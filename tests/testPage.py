@@ -55,7 +55,7 @@ class PageTest(unittest.TestCase):
         self.assertIn('Редактор постов', driver.title)
         elem = driver.find_element_by_xpath("//div[@class='title']")
         self.assertIn(elem.text, 'Тестовый пост 1')
-        elem = driver.find_element_by_css_selector('div.btn.delete')
+        elem = driver.find_element_by_css_selector('div.btn.deletePostId')
         elem.click()
         self.assertIn('Редактор постов', driver.title)
         try:

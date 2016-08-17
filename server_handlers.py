@@ -9,7 +9,7 @@ from Pagination import Pagination
 import datetime
 from config import PageConst
 
-def logon(request):
+def logonUser(request):
     request.protocol_version = httpVersion.ver11
     bdUser = authentication(request)
     if bdUser:
@@ -37,13 +37,13 @@ def logon(request):
     request.wfile.write(htmlPage)
     return request
 
-def admin(request):
+def postsEdit(request):
     bdUser = authentication(request)
     if bdUser:
         blogs = request.tableData.getBlogText(bdUser.userName, words=5)
         pagination = Pagination('/admin/view', PageConst.postsToPage, PageConst.numberByttonsPagination)
         page = pagination.getPageNumberInRequest(request.dataGet)
-        print('admin.page ', page)
+        print('postsEdit.page ', page)
         pageData = request.templateData
         pageData['lang'] = request.templateLang['ru']['adminPosts']
         pageData['metod'] = {
@@ -62,7 +62,7 @@ def admin(request):
     redirectAuthentication(request, '/admin')
     return request
 
-def blog(request):
+def blogsRead(request):
     bdUser = request.tableData.findUser('userName', request.urlMas[1])
     if not bdUser:
         page404(request)
@@ -88,7 +88,7 @@ def blog(request):
     request.wfile.write(htmlPage)
     return request
 
-def read(request):
+def blogRead(request):
     urlTmp = request.path.split('?')
     try:
         userName = urlTmp[0].split('/')[2]
@@ -122,14 +122,7 @@ def read(request):
     redirectAuthentication(request, '/')
     return request
 
-def index(request):
-    request.send_response(httpCode.Ok)
-    request.send_header('content-type', mimeType.html)
-    request.end_headers()
-    request.wfile.write(str.encode('index'))
-    return request
-
-def create(request):
+def createPost(request):
     bdUser = authentication(request)
     if bdUser:
         if request.command == httpMetod.GET:
@@ -153,7 +146,7 @@ def create(request):
     redirectAuthentication(request, '/admin')
     return request
 
-def static(request):
+def staticContentReturn(request):
     param = request.path.split('/')
     path = './static/' + param[2] + '/' + param[3]
     requestMimeType = param[3].split('.')[1]
@@ -170,7 +163,7 @@ def static(request):
     request.wfile.write(contentRaw)
     return request
 
-def registration(request):
+def registrationUser(request):
     bdUser = authentication(request)
     if not bdUser:
         if request.command == httpMetod.POST:
@@ -190,7 +183,7 @@ def registration(request):
     redirectAuthentication(request, '/admin')
     return request
 
-def edit(request):
+def editPost(request):
     bdUser = authentication(request)
     if bdUser:
         if request.command == httpMetod.GET:
@@ -229,31 +222,24 @@ def edit(request):
     redirectAuthentication(request, '/admin')
     return request
 
-def delete(request):#TODO избавится от номера страницы по средством вычисления страницы удаляемого поста
+def deletePostId(request):
     bdUser = authentication(request)
-    page = '1'
     if bdUser:
         try:
             idPostInBlog = str(request.urlMas[1])
             pagination = Pagination('', PageConst.postsToPage, PageConst.numberByttonsPagination)
-            # page = pagination.getPageNumberInRequest(request.dataGet)
-            # print(bdUser.userName, 'id', idPostInBlog)
-            # print(request.tableData.findOneBlog(bdUser.userName, 'id', idPostInBlog))
             postDelete = request.tableData.findOneBlog(bdUser.userName, 'id', idPostInBlog)
             page = pagination.getPageNumberOfBlogsSortZA(postDelete, request.tableData.findAllBlog(bdUser.userName))
             request.tableData.deleteBlog(bdUser.userName, 'id', idPostInBlog)
         except KeyError:
-            pass
-        # try:
-        #     page = str(request.dataGet['page'][0])
-        # except KeyError:
-        #     page = '1'
+            redirectAuthentication(request, '/admin')
+            return request
         redirectAuthentication(request, '/admin/view?page=' + str(page))
         return request
     redirectAuthentication(request, '/admin')
     return request
 
-def logout(request):
+def logoutUser(request):
     bdUser = authentication(request)
     if bdUser:
         bdUser.sid = ''
@@ -266,7 +252,7 @@ def logout(request):
     request.end_headers()
     return request
 
-def home(request):
+def homePage(request):
     data = request.templateData
     data['lang'] = request.templateLang['ru']['index1']
     data['metod'] = {

@@ -92,5 +92,5 @@ class _Page():
         return htmlPage
 
 if __name__ == '__main__':
-    page = Pagination('/admin/view', 3, 2)
+    page = Pagination('/postsEdit/view', 3, 2)
     print(page.render(5, [1,2,3,4,5,6,7,8,9,1,1,1,1,1,1,1,1,1,1]))
