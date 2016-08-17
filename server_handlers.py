@@ -226,7 +226,11 @@ def editPost(request):
         return request
     blogBd = request.tableData.findOneBlog(bdUser.userName, 'id', blog.id)
     blogBdAll = request.tableData.findAllBlog(bdUser.userName)
-    blogBd.edit(blog)
+    try:
+        blogBd.edit(blog)
+    except AttributeError:
+        redirectToPage(request, '/admin/view')
+        return request
     pagination = Pagination('/admin/view', PageConst.postsToPage, PageConst.numberByttonsPagination)
     redirectToPage(request, '/admin/view?page=' + str(pagination.getPageNumberOfBlogsSortZA(blogBd, blogBdAll)))
     return request

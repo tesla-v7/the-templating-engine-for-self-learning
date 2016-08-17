@@ -5,7 +5,7 @@ from loger import loger
 from DataAccessLayer import InMemoryDataAccessLayer
 from Routes import routes
 from Routing import Router
-from template1 import Template
+from template import Template
 from langRu import lang as ru
 import time
 
