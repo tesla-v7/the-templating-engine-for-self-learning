@@ -43,6 +43,7 @@ class Handler(BaseHTTPRequestHandler):
             self.dataPost = urllib.parse.parse_qs(self.rfile.read(length).decode('utf-8'))
             self.dataPost = dict([(key, self.dataPost[key][0]) for key in self.dataPost])
         loger.log('url = "{}"'.format(self.path))
+        print('POST DATA ', self.dataPost)
         self.routing.handle(request=self)
 
     def do_PUT(self):
