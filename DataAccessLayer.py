@@ -75,7 +75,7 @@ class InMemoryDataAccessLayer(_DataAccessLayer):
     def getAllUsers(self):
         users = []
         for user in self._users:
-            users.append(user.getText())
+            users.append(user.getPropertysInDict())
         return users
 
     def findOneBlog(self, autor, key, value):
@@ -105,8 +105,8 @@ class InMemoryDataAccessLayer(_DataAccessLayer):
 
     def getBlogText(self, autor, words=-1, sandbox=False):
         result = []
-        for blog in self.findAllBlog(autor, sandbox=sandbox):
-            result.append(blog.getText(words))
+        for post in self.findAllBlog(autor, sandbox=sandbox):
+            result.append(post.getPropertyInDictWithLiminWords(words))
         return result
 
     def deleteUser(self, key, value):

@@ -1,3 +1,4 @@
+from exeptions import UserError
 from datetime import datetime
 import uuid
 import re
@@ -18,7 +19,18 @@ class User(Item):
     def __str__(self):
         return self.firstName + ' ' + self.lastName
 
+    @property
+    def fullName(self):
+        return self.firstName + ' ' + self.lastName
+
     def load(self, postRequest):
+        try:
+            if len(postRequest['userName']) < 3:
+                raise UserError('short userName')
+                return False
+        except KeyError:
+            raise UserError('Not found userName in data POST request')
+            return False
         avatarRaw = None
         for key in postRequest:
             try:
@@ -33,12 +45,14 @@ class User(Item):
             f = open('.' + self.avatar, 'w+b')
             f.write(avatarRaw)
             f.close()
+        return True
 
-    def getText(self):
+    def getPropertysInDict(self):
         return {
             'userName': self.userName,
             'firstName': self.firstName,
             'lastName': self.lastName,
+            'fullName': self.fullName,
             'avatar': self.avatar,
         }
 
@@ -72,7 +86,7 @@ class Post(Item):
                 continue
         self.sandbox = bool(self.sandbox)
 
-    def getText(self, words=-1):
+    def getPropertyInDictWithLiminWords(self, words=-1):
         text = self.text.replace('\n', '<br>')
         if words > 0:
             text = re.search(r'(\b.+?\b(\s+|$)){0,' + str(words) + '}', text).group(0) + '...'
@@ -82,7 +96,7 @@ class Post(Item):
         result['sandbox'] = str(self.sandbox)
         return result
 
-    def getTextRaw(self):
+    def getPropertysInDict(self):
         property = ['autor', 'text', 'datetime', 'datetimeEdit', 'id', 'title']
         result = dict([(key, getattr(self, key)) for key in property])
         result['sandbox'] = str(self.sandbox)

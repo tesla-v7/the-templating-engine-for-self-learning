@@ -11,7 +11,7 @@ class DTOTest(unittest.TestCase):
             'firstName': 'firstName',
             'lastName': 'lastName',
         })
-        self.assertEqual(userStandard.getText(), user1.getText())
+        self.assertEqual(userStandard.getPropertysInDict(), user1.getPropertysInDict())
 
     def testBlog(self):
         blogStahdart = Blog('autor', 'title', 'text')
@@ -21,8 +21,8 @@ class DTOTest(unittest.TestCase):
             'title': 'title',
             'text': 'text',
         })
-        blogStahdartDict = blogStahdart.getTextRaw()
-        blog1Dict = blog1.getTextRaw()
+        blogStahdartDict = blogStahdart.getPropertyInDict()
+        blog1Dict = blog1.getPropertyInDict()
         self.assertNotEqual(blogStahdartDict, blog1Dict)
         del blogStahdartDict['id']
         del blog1Dict['id']
