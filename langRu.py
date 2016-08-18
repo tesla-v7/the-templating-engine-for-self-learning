@@ -58,7 +58,7 @@ lang = {
         'labelDateCreate': 'Дата создания:',
         'labelDateEdit': 'Дата редактирования:',
     },
-    'blogsRead':{
+    'pageReadBlog':{
         'lang': 'ru',
         'title': 'Блог ',
         'head': 'Блог',
@@ -67,7 +67,7 @@ lang = {
         'countText': 'Всего постов: ',
         'btnRead': 'Читать',
     },
-    'blogRead': {
+    'pageReadPost': {
         'lang': 'ru',
         'title': 'Пост ',
         'head': 'Блог',

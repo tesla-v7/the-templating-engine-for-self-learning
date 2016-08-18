@@ -16,7 +16,7 @@ class User(Item):
         self.sid = None
 
     def __str__(self):
-        return self.userName + ' ' + self.password
+        return self.firstName + ' ' + self.lastName
 
     def load(self, postRequest):
         avatarRaw = None
@@ -42,7 +42,8 @@ class User(Item):
             'avatar': self.avatar,
         }
 
-class Blog(Item):
+
+class Post(Item):
     def __init__(self, autor, title='', text='', sandbox=False):
         self.autor = autor
         self.title = title
@@ -88,10 +89,10 @@ class Blog(Item):
         return result
 
     def edit(self, blog):
-        if self.__class__ == blog.__class__:
-            self.text = blog.text
-            self.title = blog.title
-            self.sandbox = blog.sandbox
-            self.datetimeEdit = datetime.now().strftime('%Y.%m.%d %H:%M:%S')
-            return True
-        return False
+        if self.__class__ != blog.__class__:
+            return False
+        self.text = blog.text
+        self.title = blog.title
+        self.sandbox = blog.sandbox
+        self.datetimeEdit = datetime.now().strftime('%Y.%m.%d %H:%M:%S')
+        return True

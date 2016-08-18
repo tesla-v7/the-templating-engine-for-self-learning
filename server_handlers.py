@@ -4,7 +4,7 @@ from httpConstant import httpCode
 from exeptions import DataError, TemplateError
 from httpConstant import httpMetod
 import uuid
-from DataAccessLayer import User, Blog
+from DataAccessLayer import User, Post
 from Pagination import Pagination
 import datetime
 from config import PageConst
@@ -12,13 +12,22 @@ from config import PageConst
 def logonUser(request):
     request.protocol_version = httpVersion.ver11
     bdUser = authentication(request)
+    if not bdUser:
+        pageLogonUser(request)
+        return request
+    request.user = bdUser
+    request.send_response(httpCode.Redirect)
+    request.send_header('content-type', mimeType.html)
+    request.send_header('Set-Cookie', request.cookie['ID'].output(header=''))
+    request.send_header('Location', '/admin/view')
+    request.end_headers()
+    return request
+
+def pageLogonUser(request):
+    request.protocol_version = httpVersion.ver11
+    bdUser = authentication(request)
     if bdUser:
-        request.user = bdUser
-        request.send_response(httpCode.Redirect)
-        request.send_header('content-type', mimeType.html)
-        request.send_header('Set-Cookie', request.cookie['ID'].output(header=''))
-        request.send_header('Location', '/admin/view')
-        request.end_headers()
+        logonUser(request)
         return request
     try:
         pageData = request.templateData
@@ -37,32 +46,32 @@ def logonUser(request):
     request.wfile.write(htmlPage)
     return request
 
-def postsEdit(request):
+def pageEditPosts(request):
     bdUser = authentication(request)
-    if bdUser:
-        blogs = request.tableData.getBlogText(bdUser.userName, words=5)
-        pagination = Pagination('/admin/view', PageConst.postsToPage, PageConst.numberByttonsPagination)
-        page = pagination.getPageNumberInRequest(request.dataGet)
-        print('postsEdit.page ', page)
-        pageData = request.templateData
-        pageData['lang'] = request.templateLang['ru']['adminPosts']
-        pageData['metod'] = {
-            # 'page': str(page),
-            'user': bdUser.getText(),
-            'blogs': pagination.getPageElementsSortZA(page, blogs),
-            'blogCount': str(len(blogs)),
-            'pagination': pagination.render(page, blogs),
-        }
-        htmlPage = request.templates['adminPosts'].render(pageData)
-        request.send_response(httpCode.Ok)
-        request.send_header('content-type', mimeType.html)
-        request.end_headers()
-        request.wfile.write(htmlPage)
+    if not bdUser:
+        redirectToPage(request, '/admin')
         return request
-    redirectToPage(request, '/admin')
+    blogs = request.tableData.getBlogText(bdUser.userName, words=5)
+    pagination = Pagination('/admin/view', PageConst.postsToPage, PageConst.numberByttonsPagination)
+    page = pagination.getPageNumberInRequest(request.dataGet)
+    print('pageEditPosts.page ', page)
+    pageData = request.templateData
+    pageData['lang'] = request.templateLang['ru']['adminPosts']
+    pageData['metod'] = {
+        # 'page': str(page),
+        'user': bdUser.getText(),
+        'blogs': pagination.getPageElementsSortZA(page, blogs),
+        'blogCount': str(len(blogs)),
+        'pagination': pagination.render(page, blogs),
+    }
+    htmlPage = request.templates['adminPosts'].render(pageData)
+    request.send_response(httpCode.Ok)
+    request.send_header('content-type', mimeType.html)
+    request.end_headers()
+    request.wfile.write(htmlPage)
     return request
 
-def blogsRead(request):
+def pageReadBlog(request):
     bdUser = request.tableData.findUser('userName', request.urlList[1])
     if not bdUser:
         page404(request)
@@ -71,7 +80,7 @@ def blogsRead(request):
     pagination = Pagination('/'.join(['', 'blog', bdUser.userName]), PageConst.postsToPage, PageConst.numberByttonsPagination)
     page = pagination.getPageNumberInRequest(request.dataGet)
     pageData = request.templateData
-    pageData['lang'] = request.templateLang['ru']['blogsRead']
+    pageData['lang'] = request.templateLang['ru']['pageReadBlog']
     pageData['metod'] = {
         'fullName': ' '.join([bdUser.firstName, bdUser.lastName]),
         'avatar': bdUser.avatar,
@@ -88,7 +97,7 @@ def blogsRead(request):
     request.wfile.write(htmlPage)
     return request
 
-def blogRead(request):
+def pageReadPost(request):
     urlTmp = request.path.split('?')
     try:
         userName = urlTmp[0].split('/')[2]
@@ -105,7 +114,7 @@ def blogRead(request):
     blogPageNum = pagination.getPageNumberOfBlogsSortZA(postRead, request.tableData.findAllBlog(bdUser.userName))
     if postRead:
         pageData = request.templateData
-        pageData['lang'] = request.templateLang['ru']['blogRead']
+        pageData['lang'] = request.templateLang['ru']['pageReadPost']
         pageData['metod'] = {
             'fullName': ' '.join([bdUser.firstName, bdUser.lastName]),
             'page': str(blogPageNum),
@@ -139,7 +148,7 @@ def createPost(request):
     if not bdUser:
         redirectToPage(request, '/admin')
         return request
-    blog = Blog(bdUser.userName)
+    blog = Post(bdUser.userName)
     blog.load(request.dataPost)
     request.tableData.addBlog(blog)
     redirectToPage(request, '/admin/view?page=1')
@@ -217,7 +226,7 @@ def editPost(request):
     if not bdUser:
         redirectToPage(request, '/admin')
         return request
-    blog = Blog('')
+    blog = Post('')
     blog.load(request.dataPost)
     try:
         blog.id = request.urlList[1]
@@ -266,7 +275,7 @@ def logoutUser(request):
     request.end_headers()
     return request
 
-def homePage(request):
+def pageHome(request):
     data = request.templateData
     data['lang'] = request.templateLang['ru']['index1']
     data['metod'] = {

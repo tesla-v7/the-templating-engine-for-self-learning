@@ -51,11 +51,9 @@ class Pagination():
         pageAll = len(listElements) // self._elementsOnPage
         if len(listElements) % self._elementsOnPage:
             pageAll += 1
-
         pageCurrentNumber = max(1, min(pageAll, pageCurrentNumber))
         pageStar = max(1, pageCurrentNumber - self._pageMax)
         pageEnd = min(pageAll, pageCurrentNumber + self._pageMax)
-
         if pageStar > 1:
             htmlPagination += page.render(1,'<<')
         if pageStar > 2:
@@ -92,5 +90,5 @@ class _Page():
         return htmlPage
 
 if __name__ == '__main__':
-    page = Pagination('/postsEdit/view', 3, 2)
+    page = Pagination('/pageEditPosts/view', 3, 2)
     print(page.render(5, [1,2,3,4,5,6,7,8,9,1,1,1,1,1,1,1,1,1,1]))

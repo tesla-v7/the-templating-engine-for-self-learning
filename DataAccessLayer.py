@@ -1,4 +1,4 @@
-from DataTransferObject import User, Blog
+from DataTransferObject import User, Post
 
 class _DataAccessLayer:
     def addUser(self, data):
