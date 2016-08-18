@@ -8,6 +8,7 @@ from DataAccessLayer import User, Post
 from Pagination import Pagination
 import datetime
 from config import PageConst
+from loger import loger
 
 def logonUser(request):
     request.protocol_version = httpVersion.ver11
@@ -211,16 +212,21 @@ def pageEditPost(request):
         redirectToPage(request, '/admin')
         return request
     try:
-        id = request.urlList[1]
+        idPost = request.urlList[1]
     except KeyError:
         redirectToPage(request, '/admin/view?page=1')
         return request
-    post = request.tableData.findOneBlog(bdUser.userName, 'id', id)
+    post = request.tableData.findOneBlog(bdUser.userName, 'id', idPost)
     pageData = request.templateData
     pageData['lang'] = request.templateLang['ru']['editPost']
-    pageData['metod'] = {
-        'post': post.getPropertysInDict(),
-    }
+    try:
+        pageData['metod'] = {
+            'post': post.getPropertysInDict(),
+        }
+    except AttributeError:
+        loger.warning('page edit post id "' + idPost + '" not found')
+        redirectToPage(request, '/admin/view')
+        return request
     htmlPage = request.templates['editPost'].render(pageData)
     request.send_response(httpCode.Ok)
     request.send_header('content-type', mimeType.html)
@@ -245,6 +251,7 @@ def editPost(request):
     try:
         postBd.edit(post)
     except AttributeError:
+        loger.warning('edit post id "' + post.id + '" not found')
         redirectToPage(request, '/admin/view')
         return request
     pagination = Pagination('/admin/view', PageConst.postsToPage, PageConst.numberByttonsPagination)
@@ -261,8 +268,9 @@ def deletePostId(request):
         pagination = Pagination('', PageConst.postsToPage, PageConst.numberByttonsPagination)
         postDelete = request.tableData.findOneBlog(bdUser.userName, 'id', idPost)
         pageNubmer = pagination.getPageNumberOfBlogsSortZA(postDelete, request.tableData.findAllBlog(bdUser.userName))
-        request.tableData.deleteBlog(bdUser.userName, 'id', idPost)
-    except KeyError:
+        request.tableData.deleteBlog(bdUser.userName, 'id', postDelete.id)
+    except (KeyError, AttributeError):
+        loger.warning('delete post id"' + idPost + '" not found')
         redirectToPage(request, '/admin')
         return request
     redirectToPage(request, '/admin/view?page=' + str(pageNubmer))
@@ -341,6 +349,7 @@ def authentication(request):
                 request.cookie['ID']['Path'] = '/'
                 request.cookie['ID']["expires"] = expiration.strftime("%a, %d-%b-%Y %H:%M:%S PST")
                 return bdUser
+            loger.warning('invalid credentials user: ' + user.userName)
     return None
 
 def redirectToPage(request, path='/'):
