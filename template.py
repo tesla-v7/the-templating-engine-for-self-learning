@@ -295,7 +295,7 @@ class _Tree():
 
 class Template():
     def __init__(self, fileName = None, text=None):
-        self.__path = './template/'
+        self.__path = './templates/'
         self.fileName = fileName
         if fileName:
             self._tmplParse = _Parse(self.__readTemplate(fileName)).getParse()

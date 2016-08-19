@@ -1,5 +1,5 @@
 import unittest
-from template1 import Template
+from template import Template
 from exceptions import TemplateError
 
 class TemplateTest(unittest.TestCase):
