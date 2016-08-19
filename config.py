@@ -14,4 +14,3 @@ class PageConst:
     numberByttonsPagination = 1
 
 language = 'ru'
-
