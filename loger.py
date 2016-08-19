@@ -2,10 +2,8 @@ import os.path
 import datetime
 
 class loger:
-    # path = ''
     file = ''
 
-    # @staticmethod
     @classmethod
     def log(cls, msg):
         if(os.path.isfile(cls.file)):
