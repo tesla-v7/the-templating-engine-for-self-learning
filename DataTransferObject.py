@@ -1,7 +1,11 @@
-from exeptions import UserError
+from exeptions import UserError, ErrorPost
 from datetime import datetime
 import uuid
 import re
+
+date_time_format = '%Y.%m.%d %H:%M:%S'
+patern_word_max = r'(\b.+?\b(\s+|$)){0,%s}'
+path_image = '/static/image/%s%s'
 
 class Item():
     def find(self, key, value):
@@ -41,7 +45,7 @@ class User(Item):
             except AttributeError:
                 continue
         if avatarRaw:
-            self.avatar = '/static/image/' + self.userName + '.jpg'
+            self.avatar = path_image % (self.userName, '.jpg')
             f = open('.' + self.avatar, 'w+b')
             f.write(avatarRaw)
             f.close()
@@ -63,16 +67,16 @@ class Post(Item):
         self.title = title
         self.text = text
         self.sandbox = sandbox
-        self.datetime = datetime.now().strftime('%Y.%m.%d %H:%M:%S')
-        self.datetimeEdit = datetime.now().strftime('%Y.%m.%d %H:%M:%S')
+        self.datetime = datetime.now().strftime(date_time_format)
+        self.datetimeEdit = datetime.now().strftime(date_time_format)
         self.id = str(uuid.uuid4().hex)
 
     def setDatetimtNow(self):
-        self.datetime = datetime.now().strftime('%Y.%m.%d %H:%M:%S')
+        self.datetime = datetime.now().strftime(date_time_format)
 
     def setDatetime(self, value):
         try:
-            self.datetime = datetime.strftime(value, '%Y.%m.%d %H:%M:%S')
+            self.datetime = datetime.strftime(value, date_time_format)
             return True
         except ValueError:
             self.setDatetimtNow()
@@ -89,7 +93,7 @@ class Post(Item):
     def getPropertyInDictWithLiminWords(self, words=-1):
         text = self.text.replace('\n', '<br>')
         if words > 0:
-            text = re.search(r'(\b.+?\b(\s+|$)){0,' + str(words) + '}', text).group(0) + '...'
+            text = re.search(patern_word_max % str(words), text).group(0) + '...'
         property = ['autor', 'datetime', 'id', 'title']
         result = dict([(key, getattr(self, key)) for key in property])
         result['text'] = text
@@ -102,11 +106,11 @@ class Post(Item):
         result['sandbox'] = str(self.sandbox)
         return result
 
-    def edit(self, blog):
-        if self.__class__ != blog.__class__:
-            return False
-        self.text = blog.text
-        self.title = blog.title
-        self.sandbox = blog.sandbox
-        self.datetimeEdit = datetime.now().strftime('%Y.%m.%d %H:%M:%S')
-        return True
+    def edit(self, post):
+        if not isinstance(post, Post):
+            raise ErrorPost('error edit post id "%s"' % self.id)
+        self.text = post.text
+        self.title = post.title
+        self.sandbox = post.sandbox
+        self.datetimeEdit = datetime.now().strftime(date_time_format)
+

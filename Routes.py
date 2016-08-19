@@ -3,8 +3,8 @@ import server_handlers as handlers
 
 routes = [
     [httpMetod.GET, r'^/$', handlers.pageHome],
-    [httpMetod.GET, r'^/admin((/){1,1}[\w\d]*){0,0}$', handlers.pageLogonUser],
-    [httpMetod.POST, r'^/admin((/){1,1}[\w\d]*){0,0}$', handlers.logonUser],
+    [httpMetod.GET, r'^/logon((/){1,1}[\w\d]*){0,0}$', handlers.pageLogonUser],
+    [httpMetod.POST, r'^/logon((/){1,1}[\w\d]*){0,0}$', handlers.logonUser],
     [httpMetod.GET, r'^/admin/view((/){1,1}[\w\d]*){0,3}$', handlers.pageEditPosts],
     [httpMetod.GET, r'^/blog((/){1,1}[\w\d]*){1,1}$', handlers.pageReadBlog],
     [httpMetod.GET, r'^/blog((/){1,1}[\w\d]*){2,2}$', handlers.pageReadPost],

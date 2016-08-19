@@ -1,4 +1,5 @@
 from httpConstant import mimeType
+import mimetypes
 from httpConstant import httpVersion
 from httpConstant import httpCode
 from exeptions import DataError, TemplateError, UserError
@@ -9,6 +10,8 @@ from Pagination import Pagination
 import datetime
 from config import PageConst
 from loger import loger
+
+cookie_time_format = '%a, %d-%b-%Y %H:%M:%S PST'
 
 def logonUser(request):
     request.protocol_version = httpVersion.ver11
@@ -50,16 +53,14 @@ def pageLogonUser(request):
 def pageEditPosts(request):
     bdUser = authentication(request)
     if not bdUser:
-        redirectToPage(request, '/admin')
+        redirectToPage(request, '/logon')
         return request
     posts = request.tableData.getBlogText(bdUser.userName, words=5)
     pagination = Pagination('/admin/view', PageConst.postsToPage, PageConst.numberByttonsPagination)
     pageNumber = pagination.getPageNumberInRequest(request.dataGet)
-    print('pageEditPosts.page ', pageNumber)
     pageData = request.templateData
     pageData['lang'] = request.templateLang['ru']['adminPosts']
     pageData['metod'] = {
-        # 'page': str(page),
         'user': bdUser.getPropertysInDict(),
         'blogs': pagination.getPageElementsSortZA(pageNumber, posts),
         'blogCount': str(len(posts)),
@@ -135,7 +136,7 @@ def pageReadPost(request):
 def pageCreatePost(request):
     bdUser = authentication(request)
     if not bdUser:
-        redirectToPage(request, '/admin')
+        redirectToPage(request, '/logon')
         return request
     pageData = request.templateData
     pageData['lang'] = request.templateLang['ru']['createPost']
@@ -149,7 +150,7 @@ def pageCreatePost(request):
 def createPost(request):
     bdUser = authentication(request)
     if not bdUser:
-        redirectToPage(request, '/admin')
+        redirectToPage(request, '/logon')
         return request
     blog = Post(bdUser.userName)
     blog.load(request.dataPost)
@@ -158,9 +159,7 @@ def createPost(request):
     return request
 
 def staticContentReturn(request):
-    param = request.path.split('/')
-    path = './static/' + param[2] + '/' + param[3]
-    requestMimeType = param[3].split('.')[1]
+    path = './static/' + request.urlList[1] + '/' + request.urlList[2]
     try:
         file = open(path, 'rb')
         contentRaw = file.read()
@@ -169,7 +168,7 @@ def staticContentReturn(request):
         page404(request)
         return request
     request.send_response(httpCode.Ok)
-    request.send_header('content-type', mimeType.getMime(requestMimeType))
+    request.send_header('content-type', mimetypes.guess_type(request.path)[0])
     request.end_headers()
     request.wfile.write(contentRaw)
     return request
@@ -178,7 +177,7 @@ def pageRegistrationUser(request):
     bdUser = authentication(request)
     if bdUser:
         request.tableData.print()
-        redirectToPage(request, '/admin')
+        redirectToPage(request, '/logon')
         return request
     pageData = request.templateData
     pageData['lang'] = request.templateLang['ru']['registration']
@@ -203,13 +202,13 @@ def registrationUser(request):
         pageRegistrationUser(request)
         return request
     request.tableData.addUser(user)
-    redirectToPage(request, '/admin')
+    redirectToPage(request, '/logon')
     return request
 
 def pageEditPost(request):
     bdUser = authentication(request)
     if not bdUser:
-        redirectToPage(request, '/admin')
+        redirectToPage(request, '/logon')
         return request
     try:
         idPost = request.urlList[1]
@@ -224,7 +223,7 @@ def pageEditPost(request):
             'post': post.getPropertysInDict(),
         }
     except AttributeError:
-        loger.warning('page edit post id "' + idPost + '" not found')
+        loger.warning('page edit post id"%s" not found' % idPost)
         redirectToPage(request, '/admin/view')
         return request
     htmlPage = request.templates['editPost'].render(pageData)
@@ -237,7 +236,7 @@ def pageEditPost(request):
 def editPost(request):
     bdUser = authentication(request)
     if not bdUser:
-        redirectToPage(request, '/admin')
+        redirectToPage(request, '/logon')
         return request
     post = Post('')
     post.load(request.dataPost)
@@ -251,17 +250,17 @@ def editPost(request):
     try:
         postBd.edit(post)
     except AttributeError:
-        loger.warning('edit post id "' + post.id + '" not found')
+        loger.warning('edit post id "%s" not found' % post.id)
         redirectToPage(request, '/admin/view')
         return request
     pagination = Pagination('/admin/view', PageConst.postsToPage, PageConst.numberByttonsPagination)
-    redirectToPage(request, '/admin/view?page=' + str(pagination.getPageNumberOfBlogsSortZA(postBd, postsBd)))
+    redirectToPage(request, '/admin/view?page=%s' % str(pagination.getPageNumberOfBlogsSortZA(postBd, postsBd)))
     return request
 
 def deletePostId(request):
     bdUser = authentication(request)
     if not bdUser:
-        redirectToPage(request, '/admin')
+        redirectToPage(request, '/logon')
         return request
     try:
         idPost = str(request.urlList[1])
@@ -270,8 +269,8 @@ def deletePostId(request):
         pageNubmer = pagination.getPageNumberOfBlogsSortZA(postDelete, request.tableData.findAllBlog(bdUser.userName))
         request.tableData.deleteBlog(bdUser.userName, 'id', postDelete.id)
     except (KeyError, AttributeError):
-        loger.warning('delete post id"' + idPost + '" not found')
-        redirectToPage(request, '/admin')
+        loger.warning('delete post id="%s" not found' % idPost)
+        redirectToPage(request, '/logon')
         return request
     redirectToPage(request, '/admin/view?page=' + str(pageNubmer))
     return request
@@ -282,7 +281,7 @@ def logoutUser(request):
     if bdUser:
         bdUser.sid = ''
         expiration = datetime.datetime.now() + datetime.timedelta(days=-30)
-        request.cookie['ID']["expires"] = expiration.strftime("%a, %d-%b-%Y %H:%M:%S PST")
+        request.cookie['ID']['expires'] = expiration.strftime(cookie_time_format)
     request.send_response(httpCode.Redirect)
     request.send_header('content-type', mimeType.html)
     request.send_header('Set-Cookie', (request.cookie['ID'].output(header='')).replace('expires=', 'expires= -'))
@@ -332,7 +331,7 @@ def authentication(request):
             return bdUser
         else:
             expiration = datetime.datetime.now() + datetime.timedelta(days=-30)
-            request.cookie['ID']["expires"] = expiration.strftime("%a, %d-%b-%Y %H:%M:%S PST")
+            request.cookie['ID']["expires"] = expiration.strftime(cookie_time_format)
             return None
     except KeyError:
         if request.command == httpMetod.POST:
@@ -347,9 +346,9 @@ def authentication(request):
                 bdUser.sid = str(uuid.uuid5(uuid.NAMESPACE_DNS, bdUser.userName).hex)
                 request.cookie['ID'] = bdUser.sid
                 request.cookie['ID']['Path'] = '/'
-                request.cookie['ID']["expires"] = expiration.strftime("%a, %d-%b-%Y %H:%M:%S PST")
+                request.cookie['ID']["expires"] = expiration.strftime(cookie_time_format)
                 return bdUser
-            loger.warning('invalid credentials user: ' + user.userName)
+            loger.warning('invalid credentials user: %s' % user.userName)
     return None
 
 def redirectToPage(request, path='/'):

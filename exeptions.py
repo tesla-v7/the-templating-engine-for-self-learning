@@ -1,5 +1,8 @@
 from loger import loger
 
+class ErrorPost(Exception):
+    pass
+
 class UserError(Exception):
     def __init__(self, value):
         self.__value = value
