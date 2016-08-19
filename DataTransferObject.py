@@ -6,6 +6,8 @@ import re
 date_time_format = '%Y.%m.%d %H:%M:%S'
 patern_word_max = r'(\b.+?\b(\s+|$)){0,%s}'
 path_image = '/static/image/%s%s'
+path_avatar_default = '/static/image/2.jpg'
+user_name_min_len = 3
 
 class Item():
     def find(self, key, value):
@@ -17,11 +19,11 @@ class User(Item):
         self.password = password
         self.firstName = firstName
         self.lastName = lastName
-        self.avatar = '/static/image/2.jpg'
+        self.avatar = path_avatar_default
         self.sid = None
 
     def __str__(self):
-        return self.firstName + ' ' + self.lastName
+        return self.fullName
 
     @property
     def fullName(self):
@@ -29,7 +31,7 @@ class User(Item):
 
     def load(self, postRequest):
         try:
-            if len(postRequest['userName']) < 3:
+            if len(postRequest['userName']) < user_name_min_len:
                 raise UserError('short userName')
                 return False
         except KeyError:

@@ -12,6 +12,15 @@ from config import PageConst
 from loger import loger
 
 cookie_time_format = '%a, %d-%b-%Y %H:%M:%S PST'
+class urlList:
+    root = '/'
+    blog = '/blog'
+    create = '/create'
+    logon = '/logon'
+    logout = '/logout'
+    admin = '/admin/view'
+
+
 
 def logonUser(request):
     request.protocol_version = httpVersion.ver11
@@ -53,10 +62,10 @@ def pageLogonUser(request):
 def pageEditPosts(request):
     bdUser = authentication(request)
     if not bdUser:
-        redirectToPage(request, '/logon')
+        redirectToPage(request, urlList.logon)
         return request
     posts = request.tableData.getBlogText(bdUser.userName, words=5)
-    pagination = Pagination('/admin/view', PageConst.postsToPage, PageConst.numberByttonsPagination)
+    pagination = Pagination(urlList.admin, PageConst.postsToPage, PageConst.numberByttonsPagination)
     pageNumber = pagination.getPageNumberInRequest(request.dataGet)
     pageData = request.templateData
     pageData['lang'] = request.templateLang['ru']['adminPosts']
@@ -100,10 +109,9 @@ def pageReadBlog(request):
     return request
 
 def pageReadPost(request):
-    urlTmp = request.path.split('?')
     try:
-        userName = urlTmp[0].split('/')[2]
-        idPost = urlTmp[0].split('/')[3]
+        userName = request.urlList[1]
+        idPost = request.urlList[2]
     except IndexError:
         page404(request)
         return request
@@ -111,11 +119,11 @@ def pageReadPost(request):
     if not bdUser:
         redirectToPage(request, '/')
         return request
-    pagination = Pagination('/'.join(['', 'blog', bdUser.userName]), PageConst.postsToPage, PageConst.numberByttonsPagination)
+    pagination = Pagination('/'.join([urlList.blog, bdUser.userName]), PageConst.postsToPage, PageConst.numberByttonsPagination)
     post = request.tableData.findOneBlog(bdUser.userName, 'id', idPost)
     blogPageNum = pagination.getPageNumberOfBlogsSortZA(post, request.tableData.findAllBlog(bdUser.userName))
     if not post:
-        redirectToPage(request, '/blog/' + userName)
+        redirectToPage(request, '/'.join([urlList.blog, bdUser.userName]))
         return request
     pageData = request.templateData
     pageData['lang'] = request.templateLang['ru']['pageReadPost']
@@ -150,16 +158,16 @@ def pageCreatePost(request):
 def createPost(request):
     bdUser = authentication(request)
     if not bdUser:
-        redirectToPage(request, '/logon')
+        redirectToPage(request, urlList.logon)
         return request
     blog = Post(bdUser.userName)
     blog.load(request.dataPost)
     request.tableData.addBlog(blog)
-    redirectToPage(request, '/admin/view?page=1')
+    redirectToPage(request, '?'.join([urlList.admin, 'page=1']))
     return request
 
 def staticContentReturn(request):
-    path = './static/' + request.urlList[1] + '/' + request.urlList[2]
+    path = './static/%s/%s' % (request.urlList[1], request.urlList[2])
     try:
         file = open(path, 'rb')
         contentRaw = file.read()
@@ -177,7 +185,7 @@ def pageRegistrationUser(request):
     bdUser = authentication(request)
     if bdUser:
         request.tableData.print()
-        redirectToPage(request, '/logon')
+        redirectToPage(request, urlList.logon)
         return request
     pageData = request.templateData
     pageData['lang'] = request.templateLang['ru']['registration']
@@ -192,7 +200,7 @@ def registrationUser(request):
     bdUser = authentication(request)
     if bdUser:
         request.tableData.print()
-        redirectToPage(request, '/admin/' + bdUser.userName)
+        redirectToPage(request, '/'.join([urlList.admin, bdUser.userName]))
         return request
     user = User()
     try:
@@ -202,18 +210,18 @@ def registrationUser(request):
         pageRegistrationUser(request)
         return request
     request.tableData.addUser(user)
-    redirectToPage(request, '/logon')
+    redirectToPage(request, urlList.logon)
     return request
 
 def pageEditPost(request):
     bdUser = authentication(request)
     if not bdUser:
-        redirectToPage(request, '/logon')
+        redirectToPage(request, urlList.logon)
         return request
     try:
         idPost = request.urlList[1]
     except KeyError:
-        redirectToPage(request, '/admin/view?page=1')
+        redirectToPage(request, '?'.join([urlList.admin, 'page=1']))
         return request
     post = request.tableData.findOneBlog(bdUser.userName, 'id', idPost)
     pageData = request.templateData
@@ -224,7 +232,7 @@ def pageEditPost(request):
         }
     except AttributeError:
         loger.warning('page edit post id"%s" not found' % idPost)
-        redirectToPage(request, '/admin/view')
+        redirectToPage(request, urlList.admin)
         return request
     htmlPage = request.templates['editPost'].render(pageData)
     request.send_response(httpCode.Ok)
@@ -236,14 +244,14 @@ def pageEditPost(request):
 def editPost(request):
     bdUser = authentication(request)
     if not bdUser:
-        redirectToPage(request, '/logon')
+        redirectToPage(request, urlList.logon)
         return request
     post = Post('')
     post.load(request.dataPost)
     try:
         post.id = request.urlList[1]
     except KeyError:
-        redirectToPage(request, '/admin/view?page=1')
+        redirectToPage(request, '?'.join([urlList.admin, 'page=1']))
         return request
     postBd = request.tableData.findOneBlog(bdUser.userName, 'id', post.id)
     postsBd = request.tableData.findAllBlog(bdUser.userName)
@@ -251,30 +259,29 @@ def editPost(request):
         postBd.edit(post)
     except AttributeError:
         loger.warning('edit post id "%s" not found' % post.id)
-        redirectToPage(request, '/admin/view')
+        redirectToPage(request, urlList.admin)
         return request
-    pagination = Pagination('/admin/view', PageConst.postsToPage, PageConst.numberByttonsPagination)
-    redirectToPage(request, '/admin/view?page=%s' % str(pagination.getPageNumberOfBlogsSortZA(postBd, postsBd)))
+    pagination = Pagination(urlList.admin, PageConst.postsToPage, PageConst.numberByttonsPagination)
+    redirectToPage(request, '?'.join([urlList.admin, 'page=%d' % pagination.getPageNumberOfBlogsSortZA(postBd, postsBd)]))
     return request
 
 def deletePostId(request):
     bdUser = authentication(request)
     if not bdUser:
-        redirectToPage(request, '/logon')
+        redirectToPage(request, urlList.logon)
         return request
     try:
-        idPost = str(request.urlList[1])
+        idPost = request.urlList[1]
         pagination = Pagination('', PageConst.postsToPage, PageConst.numberByttonsPagination)
         postDelete = request.tableData.findOneBlog(bdUser.userName, 'id', idPost)
         pageNubmer = pagination.getPageNumberOfBlogsSortZA(postDelete, request.tableData.findAllBlog(bdUser.userName))
         request.tableData.deleteBlog(bdUser.userName, 'id', postDelete.id)
     except (KeyError, AttributeError):
         loger.warning('delete post id="%s" not found' % idPost)
-        redirectToPage(request, '/logon')
+        redirectToPage(request, urlList.logon)
         return request
-    redirectToPage(request, '/admin/view?page=' + str(pageNubmer))
+    redirectToPage(request, '?'.join([urlList.admin, 'page=%d' % pageNubmer]))
     return request
-
 
 def logoutUser(request):
     bdUser = authentication(request)

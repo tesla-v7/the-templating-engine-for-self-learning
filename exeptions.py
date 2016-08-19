@@ -1,12 +1,9 @@
-from loger import loger
-
 class ErrorPost(Exception):
     pass
 
 class UserError(Exception):
     def __init__(self, value):
         self.__value = value
-        loger.expt(value)
 
     def __str__(self):
         return repr(self.__value)
@@ -16,7 +13,6 @@ class UserError(Exception):
 class DataError(Exception):
     def __init__(self, value):
         self.__value = value
-        loger.expt(value)
 
     def __str__(self):
         return repr(self.__value)
@@ -26,7 +22,6 @@ class DataError(Exception):
 class TemplateError(Exception):
     def __init__(self, value):
         self.__value = value
-        loger.expt(value)
 
     def __str__(self):
         return repr(self.__value)
@@ -36,7 +31,6 @@ class TemplateError(Exception):
 class RoutesAddError(Exception):
     def __init__(self, value):
         self.__value = value
-        loger.expt(value)
 
     def __str__(self):
         return repr(self.__value)
@@ -46,7 +40,6 @@ class RoutesAddError(Exception):
 class HandleError(Exception):
     def __init__(self, value):
         self.__value = value
-        loger.expt(value)
 
     def __str__(self):
         return repr(self.__value)
