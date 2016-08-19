@@ -84,7 +84,7 @@ def pageReadBlog(request):
     pageData = request.templateData
     pageData['lang'] = request.templateLang['ru']['pageReadBlog']
     pageData['metod'] = {
-        'fullName': ' '.join([bdUser.firstName, bdUser.lastName]),
+        'fullName': bdUser.fullName,
         'avatar': bdUser.avatar,
         'page': str(pageNumber),
         'autor': bdUser.userName,
@@ -120,7 +120,7 @@ def pageReadPost(request):
     pageData = request.templateData
     pageData['lang'] = request.templateLang['ru']['pageReadPost']
     pageData['metod'] = {
-        'fullName': ' '.join([bdUser.firstName, bdUser.lastName]),
+        'fullName': bdUser.fullName,
         'page': str(blogPageNum),
         'autor': bdUser.userName,
         'avatar': bdUser.avatar,
