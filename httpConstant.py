@@ -1,4 +1,4 @@
-class httpMetod:
+class HttpMetod:
     GET = 'GET'
     POST = 'POST'
     PUT = 'PUT'
@@ -7,7 +7,7 @@ class httpMetod:
     REFRESH = 'REFRESH'
     HEAD = 'HEAD'
 
-class mimeType:
+class MimeType:
     html = 'text/html'
     css = 'text/css'
     js = 'ext/javascript'
@@ -28,15 +28,15 @@ class mimeType:
             mime = tmp['zip']
         return mime
 
-class httpVersion:
+class HttpVersion:
     ver11 = 'HTTP/1.1'
     ver09 = 'HTTP/0.9'
 
-class httpCode:
+class HttpCode:
     Ok = 200
     Redirect = 302
     NotFound = 404
     ServerErr = 500
 
 if __name__ == '__main__':
-    print(mimeType.getMime('zip'))
+    print(MimeType.getMime('zip'))

@@ -1,9 +1,9 @@
-from httpConstant import mimeType
+from httpConstant import MimeType
 import mimetypes
-from httpConstant import httpVersion
-from httpConstant import httpCode
+from httpConstant import HttpVersion
+from httpConstant import HttpCode
 from exceptions import DataError, TemplateError, UserError
-from httpConstant import httpMetod
+from httpConstant import HttpMetod
 import uuid
 from DataAccessLayer import User, Post
 from Pagination import Pagination
@@ -23,21 +23,21 @@ class urlList:
 
 
 def logonUser(request):
-    request.protocol_version = httpVersion.ver11
+    request.protocol_version = HttpVersion.ver11
     bdUser = authentication(request)
     if not bdUser:
         pageLogonUser(request)
         return request
     request.user = bdUser
-    request.send_response(httpCode.Redirect)
-    request.send_header('content-type', mimeType.html)
+    request.send_response(HttpCode.Redirect)
+    request.send_header('content-type', MimeType.html)
     request.send_header('Set-Cookie', request.cookie['ID'].output(header=''))
     request.send_header('Location', '/admin/view')
     request.end_headers()
     return request
 
 def pageLogonUser(request):
-    request.protocol_version = httpVersion.ver11
+    request.protocol_version = HttpVersion.ver11
     bdUser = authentication(request)
     if bdUser:
         logonUser(request)
@@ -49,8 +49,8 @@ def pageLogonUser(request):
     except (DataError, TemplateError):
         page500(request)
         return request
-    request.send_response(httpCode.Ok)
-    request.send_header('content-type', mimeType.html)
+    request.send_response(HttpCode.Ok)
+    request.send_header('content-type', MimeType.html)
     try:
         request.send_header('Set-Cookie', request.cookie['ID'].output(header=''))
     except KeyError:
@@ -76,8 +76,8 @@ def pageEditPosts(request):
         'pagination': pagination.render(pageNumber, posts),
     }
     htmlPage = request.templates['adminPosts'].render(pageData)
-    request.send_response(httpCode.Ok)
-    request.send_header('content-type', mimeType.html)
+    request.send_response(HttpCode.Ok)
+    request.send_header('content-type', MimeType.html)
     request.end_headers()
     request.wfile.write(htmlPage)
     return request
@@ -102,8 +102,8 @@ def pageReadBlog(request):
         'pagination': pagination.render(pageNumber, posts),
     }
     htmlPage = request.templates['blogsRead'].render(pageData)
-    request.send_response(httpCode.Ok)
-    request.send_header('content-type', mimeType.html)
+    request.send_response(HttpCode.Ok)
+    request.send_header('content-type', MimeType.html)
     request.end_headers()
     request.wfile.write(htmlPage)
     return request
@@ -135,8 +135,8 @@ def pageReadPost(request):
         'blog': post.getPropertysInDict(),
     }
     htmlPage = request.templates['blogRead'].render(pageData)
-    request.send_response(httpCode.Ok)
-    request.send_header('content-type', mimeType.html)
+    request.send_response(HttpCode.Ok)
+    request.send_header('content-type', MimeType.html)
     request.end_headers()
     request.wfile.write(htmlPage)
     return request
@@ -149,8 +149,8 @@ def pageCreatePost(request):
     pageData = request.templateData
     pageData['lang'] = request.templateLang['ru']['createPost']
     htmlPage = request.templates['createPost'].render(pageData)
-    request.send_response(httpCode.Ok)
-    request.send_header('content-type', mimeType.html)
+    request.send_response(HttpCode.Ok)
+    request.send_header('content-type', MimeType.html)
     request.end_headers()
     request.wfile.write(htmlPage)
     return request
@@ -175,7 +175,7 @@ def staticContentReturn(request):
     except (FileNotFoundError, IsADirectoryError):
         page404(request)
         return request
-    request.send_response(httpCode.Ok)
+    request.send_response(HttpCode.Ok)
     request.send_header('content-type', mimetypes.guess_type(request.path)[0])
     request.end_headers()
     request.wfile.write(contentRaw)
@@ -190,8 +190,8 @@ def pageRegistrationUser(request):
     pageData = request.templateData
     pageData['lang'] = request.templateLang['ru']['registration']
     htmlPage = request.templates['registration'].render(pageData)
-    request.send_response(httpCode.Ok)
-    request.send_header('content-type', mimeType.html)
+    request.send_response(HttpCode.Ok)
+    request.send_header('content-type', MimeType.html)
     request.end_headers()
     request.wfile.write(htmlPage)
     return request
@@ -235,8 +235,8 @@ def pageEditPost(request):
         redirectToPage(request, urlList.admin)
         return request
     htmlPage = request.templates['editPost'].render(pageData)
-    request.send_response(httpCode.Ok)
-    request.send_header('content-type', mimeType.html)
+    request.send_response(HttpCode.Ok)
+    request.send_header('content-type', MimeType.html)
     request.end_headers()
     request.wfile.write(htmlPage)
     return request
@@ -289,8 +289,8 @@ def logoutUser(request):
         bdUser.sid = ''
         expiration = datetime.datetime.now() + datetime.timedelta(days=-30)
         request.cookie['ID']['expires'] = expiration.strftime(cookie_time_format)
-    request.send_response(httpCode.Redirect)
-    request.send_header('content-type', mimeType.html)
+    request.send_response(HttpCode.Redirect)
+    request.send_header('content-type', MimeType.html)
     request.send_header('Set-Cookie', (request.cookie['ID'].output(header='')).replace('expires=', 'expires= -'))
     request.send_header('Location', '/')
     request.end_headers()
@@ -304,29 +304,29 @@ def pageHome(request):
         'autors': request.tableData.getAllUsers(),
     }
     htmlPage = request.templates['index1'].render(data)
-    request.send_response(httpCode.Ok)
-    request.send_header('content-type', mimeType.html)
+    request.send_response(HttpCode.Ok)
+    request.send_header('content-type', MimeType.html)
     request.end_headers()
     request.wfile.write(htmlPage)
     return request
 
 def about(request):
-    request.send_response(httpCode.Ok)
-    request.send_header('content-type', mimeType.html)
+    request.send_response(HttpCode.Ok)
+    request.send_header('content-type', MimeType.html)
     request.end_headers()
     request.wfile.write(str.encode('about'))
     return request
 
 def page404(request):
-    request.send_response(httpCode.NotFound)
-    request.send_header('content-type', mimeType.html)
+    request.send_response(HttpCode.NotFound)
+    request.send_header('content-type', MimeType.html)
     request.end_headers()
     request.wfile.write(str.encode(request.templateLang['ru']['serverErr'][404]))
     return request
 
 def page500(request):
-    request.send_response(httpCode.ServerErr)
-    request.send_header('content-type', mimeType.html)
+    request.send_response(HttpCode.ServerErr)
+    request.send_header('content-type', MimeType.html)
     request.end_headers()
     request.wfile.write(str.encode(request.templateLang['ru']['serverErr'][500]))
     return request
@@ -341,7 +341,7 @@ def authentication(request):
             request.cookie['ID']["expires"] = expiration.strftime(cookie_time_format)
             return None
     except KeyError:
-        if request.command == httpMetod.POST:
+        if request.command == HttpMetod.POST:
             user = User()
             try:
                 user.load(request.dataPost)
@@ -359,8 +359,8 @@ def authentication(request):
     return None
 
 def redirectToPage(request, path='/'):
-    request.send_response(httpCode.Redirect)
-    request.send_header('content-type', mimeType.html)
+    request.send_response(HttpCode.Redirect)
+    request.send_header('content-type', MimeType.html)
     request.send_header('Location', path)
     request.end_headers()
     return request
