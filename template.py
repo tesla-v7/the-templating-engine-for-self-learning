@@ -1,6 +1,6 @@
 # coding: utf-8
 import re
-from exeptions import TemplateError
+from exceptions import TemplateError
 import operator
 
 BLOCK_ROOT = 'root'

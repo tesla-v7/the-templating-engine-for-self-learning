@@ -2,7 +2,7 @@ from httpConstant import mimeType
 import mimetypes
 from httpConstant import httpVersion
 from httpConstant import httpCode
-from exeptions import DataError, TemplateError, UserError
+from exceptions import DataError, TemplateError, UserError
 from httpConstant import httpMetod
 import uuid
 from DataAccessLayer import User, Post

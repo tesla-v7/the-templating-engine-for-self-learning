@@ -1,5 +1,5 @@
-from exeptions import RoutesAddError
-from exeptions import HandleError
+from exceptions import RoutesAddError
+from exceptions import HandleError
 import server_handlers as handlers
 from loger import loger
 import re

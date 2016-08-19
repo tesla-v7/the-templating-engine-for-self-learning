@@ -1,6 +1,6 @@
 import unittest
 from template1 import Template
-from exeptions import TemplateError
+from exceptions import TemplateError
 
 class TemplateTest(unittest.TestCase):
     def testText(self):

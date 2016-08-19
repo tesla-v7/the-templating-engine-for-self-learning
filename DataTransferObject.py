@@ -1,4 +1,4 @@
-from exeptions import UserError, ErrorPost
+from exceptions import UserError, ErrorPost
 from datetime import datetime
 import uuid
 import re
